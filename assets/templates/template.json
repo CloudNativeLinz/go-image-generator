@@ -1,0 +1,22 @@
+{
+  "headline": {
+    "text": "Your Headline Here",
+    "font": "assets/fonts/LBRITE.TTF",
+    "fontSize": 200,
+    "color": "#FFFFFF",
+    "position": {
+      "x": 45,
+      "y": 20
+    }
+  },
+  "description": {
+    "text": "Your description goes here.",
+    "font": "assets/fonts/LBRITED.TTF",
+    "fontSize": 200,
+    "color": "#CCCCCC",
+    "position": {
+      "x": 45,
+      "y": 25
+    }
+  }
+}
