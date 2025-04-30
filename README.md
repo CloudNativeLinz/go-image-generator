@@ -46,7 +46,7 @@ To generate an image, run the application with the necessary command-line argume
 
 ### Example Command
 ```
-go run cmd/main.go --background <background-image> --overlays <overlay-image1,overlay-image2> --text "<your-text>" --font <font-file>
+go run cmd/main.go --background assets/backgrounds/cncf.jpg --template assets/templates/template.json --output file.jpg
 ```
 
 ## Contributing
