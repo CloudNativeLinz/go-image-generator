@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
-	"io/ioutil"
 	"log"
 	"os"
 	"strings"
@@ -83,7 +82,7 @@ func main() {
 
 	// Parse the template file if provided
 	if *templatePath != "" {
-		templateData, err := ioutil.ReadFile(*templatePath)
+		templateData, err := os.ReadFile(*templatePath)
 		if err != nil {
 			log.Fatalf("Error reading template file: %v", err)
 		}
@@ -114,7 +113,7 @@ func main() {
 		}
 
 		// Read the last event from events.yml
-		eventsData, err := ioutil.ReadFile("_data/events.yml")
+		eventsData, err := os.ReadFile("_data/events.yml")
 		if err != nil {
 			log.Fatalf("Error reading events.yml: %v", err)
 		}
