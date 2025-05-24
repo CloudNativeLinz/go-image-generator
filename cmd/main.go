@@ -14,6 +14,8 @@ import (
 	"go-image-generator/pkg/renderer"
 	"go-image-generator/pkg/templates"
 	"go-image-generator/pkg/utils"
+
+	"gopkg.in/yaml.v2"
 )
 
 func main() {
@@ -80,7 +82,6 @@ func main() {
 	}
 
 	// Parse the template file if provided
-	var headline, description string
 	if *templatePath != "" {
 		templateData, err := ioutil.ReadFile(*templatePath)
 		if err != nil {
@@ -89,7 +90,6 @@ func main() {
 
 		var template struct {
 			Headline struct {
-				Text     string  `json:"text"`
 				Font     string  `json:"font"`
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
@@ -99,13 +99,12 @@ func main() {
 				} `json:"position"`
 			} `json:"headline"`
 			Description struct {
-				Text     string  `json:"text"`
 				Font     string  `json:"font"`
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
 				Position struct {
 					X int `json:"x"`
-					Y int `json://y"`
+					Y int `json:"y"`
 				} `json:"position"`
 			} `json:"description"`
 		}
@@ -114,34 +113,79 @@ func main() {
 			log.Fatalf("Error parsing template JSON: %v", err)
 		}
 
-		headline = template.Headline.Text
-		description = template.Description.Text
+		// Read the last event from events.yml
+		eventsData, err := ioutil.ReadFile("_data/events.yml")
+		if err != nil {
+			log.Fatalf("Error reading events.yml: %v", err)
+		}
 
-		// Dynamically calculate positions based on image dimensions
+		// Parse YAML
+		type Talk struct {
+			Title   string `yaml:"title"`
+			Speaker string `yaml:"speaker"`
+		}
+		type Event struct {
+			Talks []Talk `yaml:"talks"`
+		}
+		var events []Event
+		err = yaml.Unmarshal(eventsData, &events)
+		if err != nil {
+			log.Fatalf("Error parsing events.yml: %v", err)
+		}
+		if len(events) == 0 {
+			log.Fatalf("No events found in events.yml")
+		}
+		lastEvent := events[len(events)-1]
+		if len(lastEvent.Talks) == 0 {
+			log.Fatalf("No talks found in last event")
+		}
+
+		// Compose text for headline and description from talks
+		headlineText := lastEvent.Talks[0].Title
+		headlineSpeaker := lastEvent.Talks[0].Speaker
+		descriptionText := ""
+		descriptionSpeaker := ""
+		if len(lastEvent.Talks) > 1 {
+			descriptionText = lastEvent.Talks[1].Title
+			descriptionSpeaker = lastEvent.Talks[1].Speaker
+		}
+
 		imgWidth := rgbaFinalImage.Bounds().Dx()
 		imgHeight := rgbaFinalImage.Bounds().Dy()
 
-		// Calculate headline position
+		// Headline position
 		headlineX := (template.Headline.Position.X * imgWidth) / 100
 		headlineY := (template.Headline.Position.Y * imgHeight) / 100
+		// Description position
+		descriptionX := (template.Description.Position.X * imgWidth) / 100
+		descriptionY := (template.Description.Position.Y * imgHeight) / 100
 
-		// Render headline with calculated position
-		if headline != "" {
-			err = textRenderer.RenderTextWithPosition(rgbaFinalImage, headline, template.Headline.Font, template.Headline.FontSize, headlineX, headlineY)
+		// Render headline title
+		if headlineText != "" {
+			err = textRenderer.RenderTextWithPosition(rgbaFinalImage, headlineText, template.Headline.Font, template.Headline.FontSize, headlineX, headlineY)
 			if err != nil {
 				log.Fatalf("Error rendering headline: %v", err)
 			}
 		}
-
-		// Calculate description position
-		descriptionX := (template.Description.Position.X * imgWidth) / 100
-		descriptionY := (template.Description.Position.Y * imgHeight) / 100
-
-		// Render description with calculated position
-		if description != "" {
-			err = textRenderer.RenderTextWithPosition(rgbaFinalImage, description, template.Description.Font, template.Description.FontSize, descriptionX, descriptionY)
+		// Render headline speaker below title
+		if headlineSpeaker != "" {
+			err = textRenderer.RenderTextWithPosition(rgbaFinalImage, headlineSpeaker, template.Description.Font, template.Description.FontSize, headlineX, headlineY+int(template.Headline.FontSize)+10)
+			if err != nil {
+				log.Fatalf("Error rendering headline speaker: %v", err)
+			}
+		}
+		// Render description title
+		if descriptionText != "" {
+			err = textRenderer.RenderTextWithPosition(rgbaFinalImage, descriptionText, template.Headline.Font, template.Headline.FontSize, descriptionX, descriptionY)
 			if err != nil {
 				log.Fatalf("Error rendering description: %v", err)
+			}
+		}
+		// Render description speaker below title
+		if descriptionSpeaker != "" {
+			err = textRenderer.RenderTextWithPosition(rgbaFinalImage, descriptionSpeaker, template.Description.Font, template.Description.FontSize, descriptionX, descriptionY+int(template.Headline.FontSize)+10)
+			if err != nil {
+				log.Fatalf("Error rendering description speaker: %v", err)
 			}
 		}
 	}
