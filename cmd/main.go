@@ -187,7 +187,7 @@ func main() {
 				Color    string  `json:"color"`
 				Position struct {
 					X int `json:"x"`
-					Y int `json://y"`
+					Y int `json:"y"`
 				} `json:"position"`
 				BoxWidth int    `json:"boxWidth"`
 				Text     string `json:"text"`
@@ -365,6 +365,122 @@ func main() {
 			wrappedLines := wrapText(textField.Text, textField.BoxWidth, loadFont(textField.Font), textField.FontSize)
 			for _, line := range wrappedLines {
 				textRenderer.RenderText(rgbaFinalImage, line, textField.Font, textField.FontSize)
+			}
+		}
+	}
+
+	// --- Render speaker text in correct box positions and avoid overlaying ---
+	if *templatePath != "" {
+		templateData, err := os.ReadFile(*templatePath)
+		if err != nil {
+			log.Fatalf("Error reading template file: %v", err)
+		}
+		var template struct {
+			Speaker1title struct {
+				Text     string
+				Font     string
+				FontSize float64
+				Color    string
+				Position struct {
+					X int
+					Y int
+				}
+				BoxWidth int
+			}
+			Speaker1name struct {
+				Text     string
+				Font     string
+				FontSize float64
+				Color    string
+				Position struct {
+					X int
+					Y int
+				}
+				BoxWidth int
+			}
+			Speaker2title struct {
+				Text     string
+				Font     string
+				FontSize float64
+				Color    string
+				Position struct {
+					X int
+					Y int
+				}
+				BoxWidth int
+			}
+			Speaker2name struct {
+				Text     string
+				Font     string
+				FontSize float64
+				Color    string
+				Position struct {
+					X int
+					Y int
+				}
+				BoxWidth int
+			}
+		}
+		if err := json.Unmarshal(templateData, &template); err != nil {
+			log.Fatalf("Error parsing template JSON: %v", err)
+		}
+
+		imgWidth := rgbaFinalImage.Bounds().Dx()
+		imgHeight := rgbaFinalImage.Bounds().Dy()
+
+		// Speaker 1 box (left)
+		speaker1BoxX := int(0.13 * float64(imgWidth))    // ~13% from left
+		speaker1BoxY := int(0.36 * float64(imgHeight))   // ~36% from top
+		speakerBoxWidth := int(0.25 * float64(imgWidth)) // ~25% width
+		lineSpacing := 1.1
+
+		// Speaker 2 box (right)
+		speaker2BoxX := int(0.62 * float64(imgWidth))  // ~62% from left
+		speaker2BoxY := int(0.36 * float64(imgHeight)) // ~36% from top
+
+		// Render Speaker 1 (title + name)
+		font1 := loadFont(template.Speaker1title.Font)
+		font2 := loadFont(template.Speaker1name.Font)
+		wrappedTitle1 := wrapText(template.Speaker1title.Text, speakerBoxWidth, font1, template.Speaker1title.FontSize)
+		wrappedName1 := wrapText(template.Speaker1name.Text, speakerBoxWidth, font2, template.Speaker1name.FontSize)
+		// Draw title
+		for i, line := range wrappedTitle1 {
+			y := speaker1BoxY + int(float64(i)*template.Speaker1title.FontSize*lineSpacing)
+			err := textRenderer.RenderTextWithPosition(rgbaFinalImage, line, template.Speaker1title.Font, template.Speaker1title.FontSize, speaker1BoxX, y)
+			if err != nil {
+				log.Printf("Error rendering speaker1 title: %v", err)
+			}
+		}
+		// Draw name below title
+		nameStartY := speaker1BoxY + int(float64(len(wrappedTitle1))*template.Speaker1title.FontSize*lineSpacing) + int(template.Speaker1name.FontSize*0.5)
+		for i, line := range wrappedName1 {
+			y := nameStartY + int(float64(i)*template.Speaker1name.FontSize*lineSpacing)
+			err := textRenderer.RenderTextWithPosition(rgbaFinalImage, line, template.Speaker1name.Font, template.Speaker1name.FontSize, speaker1BoxX, y)
+			if err != nil {
+				log.Printf("Error rendering speaker1 name: %v", err)
+			}
+		}
+
+		// Render Speaker 2 (title + name)
+		font3 := loadFont(template.Speaker2title.Font)
+		font4 := loadFont(template.Speaker2name.Font)
+		wrappedTitle2 := wrapText(template.Speaker2title.Text, speakerBoxWidth, font3, template.Speaker2title.FontSize)
+		wrappedName2 := wrapText(template.Speaker2name.Text, speakerBoxWidth, font4, template.Speaker2name.FontSize)
+		// Draw title
+		for i, line := range wrappedTitle2 {
+			y := speaker2BoxY + int(float64(i)*template.Speaker2title.FontSize*lineSpacing)
+			err := textRenderer.RenderTextWithPosition(rgbaFinalImage, line, template.Speaker2title.Font, template.Speaker2title.FontSize, speaker2BoxX, y)
+			if err != nil {
+				log.Printf("Error rendering speaker2 title: %v", err)
+			}
+		}
+		// Draw name below title
+		name2StartY := speaker2BoxY + int(float64(len(wrappedTitle2))*template.Speaker2title.FontSize*lineSpacing) + int(template.Speaker2name.FontSize*0.5)
+		for i, line := range wrappedName2 {
+			y := name2StartY + int(float64(i)*template.Speaker2name.FontSize*lineSpacing)
+			err := textRenderer.RenderTextWithPosition(rgbaFinalImage, line, template.Speaker2name.Font, template.Speaker2name.FontSize, speaker2BoxX, y)
+			if err != nil {
+				log.Printf("Error rendering speaker2 name: %v", err)
 			}
 		}
 	}
