@@ -1,22 +1,58 @@
 {
-  "headline": {
-    "text": "Your Headline Here",
-    "font": "assets/fonts/LBRITE.TTF",
-    "fontSize": 200,
-    "color": "#FFFFFF",
+  "background": {
+    "image": "assets/backgrounds/test.jpg",
     "position": {
-      "x": 45,
-      "y": 20
+      "x": 0,
+      "y": 0
+    },
+    "size": {
+      "width": 1920,
+      "height": 1080
     }
   },
-  "description": {
-    "text": "Your description goes here.",
-    "font": "assets/fonts/LBRITED.TTF",
-    "fontSize": 200,
-    "color": "#CCCCCC",
+  
+  "speaker1title": {
+    "font": "assets/fonts/LBRITE.TTF",
+    "fontSize": 40,
+    "color": "#FFFFFF",
     "position": {
-      "x": 45,
-      "y": 25
-    }
+      "x": 25,
+      "y": 70
+    },
+    "boxWidth": 300,
+    "text": "Keynote Speaker"
+  },
+  "speaker1name": {
+    "font": "assets/fonts/LBRITED.TTF",
+    "fontSize": 32,
+    "color": "#000000",
+    "position": {
+      "x": 25,
+      "y": 80
+    },
+    "boxWidth": 300,
+    "text": "John Doe"
+  },
+  "speaker2title": {
+    "font": "assets/fonts/LBRITE.TTF",
+    "fontSize": 40,
+    "color": "#FFFFFF",
+    "position": {
+      "x": 75,
+      "y": 70
+    },
+    "boxWidth": 300,
+    "text": "Guest Speaker"
+  },
+  "speaker2name": {
+    "font": "assets/fonts/LBRITED.TTF",
+    "fontSize": 32,
+    "color": "#FFFFFF",
+    "position": {
+      "x": 75,
+      "y": 80
+    },
+    "boxWidth": 300,
+    "text": "Jane Smith"
   }
 }
