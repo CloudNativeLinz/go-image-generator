@@ -214,9 +214,9 @@ func main() {
 		imgHeight := rgbaFinalImage.Bounds().Dy()
 
 		// Speaker 1 box (left)
-		speaker1BoxX := int(0.13 * float64(imgWidth))    // ~13% from left
-		speaker1BoxY := int(0.36 * float64(imgHeight))   // ~36% from top
-		speakerBoxWidth := int(0.25 * float64(imgWidth)) // ~25% width
+		speaker1BoxX := int(0.33 * float64(imgWidth))    // ~30% from left
+		speaker1BoxY := int(0.50 * float64(imgHeight))   // ~50% from top
+		speakerBoxWidth := int(0.22 * float64(imgWidth)) // ~25% width
 		lineSpacing := 1.1
 
 		// Speaker 2 box (right)
