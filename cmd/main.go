@@ -14,6 +14,8 @@ import (
 	"go-image-generator/pkg/templates"
 	"go-image-generator/pkg/utils"
 
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
 	"golang.org/x/image/font/opentype"
 )
 
@@ -288,7 +290,9 @@ func wrapText(text string, maxWidth int, font *opentype.Font, fontSize float64) 
 		} else {
 			testLine := line + " " + word
 			width := measureTextWidth(testLine, font, fontSize)
+			log.Printf("[wrapText] testLine: '%s', width: %.2f, maxWidth: %d", testLine, width, maxWidth)
 			if width > float64(maxWidth) {
+				log.Printf("[wrapText] Wrapping line: '%s' (width %.2f > maxWidth %d)", line, measureTextWidth(line, font, fontSize), maxWidth)
 				wrapped = append(wrapped, line)
 				line = word
 			} else {
@@ -298,6 +302,7 @@ func wrapText(text string, maxWidth int, font *opentype.Font, fontSize float64) 
 	}
 
 	if line != "" {
+		log.Printf("[wrapText] Final line: '%s' (width %.2f)", line, measureTextWidth(line, font, fontSize))
 		wrapped = append(wrapped, line)
 	}
 
@@ -318,16 +323,28 @@ func loadFont(fontPath string) *opentype.Font {
 }
 
 // Define a utility function to measure text width
-func measureTextWidth(text string, font *opentype.Font, fontSize float64) float64 {
-	face, err := opentype.NewFace(font, &opentype.FaceOptions{Size: fontSize})
+func measureTextWidth(text string, fontFile *opentype.Font, fontSize float64) float64 {
+	// Set DPI and Hinting for better compatibility
+	face, err := opentype.NewFace(fontFile, &opentype.FaceOptions{
+		Size:    fontSize,
+		DPI:     72,
+		Hinting: font.HintingFull,
+	})
 	if err != nil {
 		log.Fatalf("Error creating font face: %v", err)
 	}
 	defer face.Close()
-	width := 0.0
-	for _, x := range text {
-		advance, _ := face.GlyphAdvance(x)
-		width += float64(advance) / 64.0
+	var d font.Drawer
+	d.Face = face
+	width := d.MeasureString(text)
+	w := float64(width) / 64.0
+	if w == 0.0 && len(text) > 0 {
+		log.Printf("[measureTextWidth] WARNING: Measured width is 0.0 for text '%s' with custom font. Font file may be invalid or incompatible.", text)
+		// Fallback to basicfont.Face7x13
+		var fallback font.Drawer
+		fallback.Face = basicfont.Face7x13
+		w = float64(fallback.MeasureString(text)) / 64.0
+		log.Printf("[measureTextWidth] Fallback width: %.2f", w)
 	}
-	return width
+	return w
 }
