@@ -109,6 +109,48 @@ func (tr *TextRenderer) RenderTextWithPosition(img *image.RGBA, text string, fon
 	return nil
 }
 
+func parseHexColor(s string) color.Color {
+	if len(s) == 7 && s[0] == '#' {
+		var rr, gg, bb int
+		fmt.Sscanf(s, "#%02x%02x%02x", &rr, &gg, &bb)
+		return color.RGBA{uint8(rr), uint8(gg), uint8(bb), 255}
+	}
+	return color.RGBA{255, 255, 255, 255} // fallback to white
+}
+
+func (tr *TextRenderer) RenderTextWithPositionAndColor(img *image.RGBA, text string, fontPath string, fontSize float64, colStr string, x int, y int) error {
+	col := parseHexColor(colStr)
+	// ...existing code for loading font and face...
+	fontBytes, err := ioutil.ReadFile(fontPath)
+	if err != nil {
+		return fmt.Errorf("failed to load font file: %w", err)
+	}
+	parsedFont, err := opentype.Parse(fontBytes)
+	if err != nil {
+		return fmt.Errorf("failed to parse font: %w", err)
+	}
+	face, err := opentype.NewFace(parsedFont, &opentype.FaceOptions{
+		Size: fontSize,
+		DPI:  72,
+	})
+	if err != nil {
+		return fmt.Errorf("failed to create font face: %w", err)
+	}
+	defer face.Close()
+	point := fixed.Point26_6{
+		X: fixed.I(x),
+		Y: fixed.I(y),
+	}
+	d := &font.Drawer{
+		Dst:  img,
+		Src:  image.NewUniform(col),
+		Face: face,
+		Dot:  point,
+	}
+	d.DrawString(text)
+	return nil
+}
+
 func SaveImage(img *image.RGBA, filename string) error {
 	outFile, err := os.Create(filename)
 	if err != nil {

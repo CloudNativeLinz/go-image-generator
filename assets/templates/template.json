@@ -14,13 +14,13 @@
   "speaker1title": {
     "font": "assets/fonts/LBRITE.TTF",
     "fontSize": 40,
-    "color": "#FFFFFF",
+    "color": "#000000",
     "position": {
       "x": 25,
       "y": 70
     },
-    "boxWidth": 300,
-    "text": "Keynote Speaker"
+    "boxWidth": 600,
+    "text": "OpenRewrite in a Nutshell: Scaling Upgrades with Practical Insights"
   },
   "speaker1name": {
     "font": "assets/fonts/LBRITED.TTF",
@@ -31,7 +31,7 @@
       "y": 80
     },
     "boxWidth": 300,
-    "text": "John Doe"
+    "text": "Simon Gartner"
   },
   "speaker2title": {
     "font": "assets/fonts/LBRITE.TTF",
@@ -42,7 +42,7 @@
       "y": 70
     },
     "boxWidth": 300,
-    "text": "Guest Speaker"
+    "text": "Adversary Emulation for Kubernetes Environments"
   },
   "speaker2name": {
     "font": "assets/fonts/LBRITED.TTF",
@@ -53,6 +53,6 @@
       "y": 80
     },
     "boxWidth": 300,
-    "text": "Jane Smith"
+    "text": "Markus Gierlinger"
   }
 }
