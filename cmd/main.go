@@ -216,12 +216,12 @@ func main() {
 		// Speaker 1 box (left)
 		speaker1BoxX := int(0.33 * float64(imgWidth))    // ~30% from left
 		speaker1BoxY := int(0.50 * float64(imgHeight))   // ~50% from top
-		speakerBoxWidth := int(0.22 * float64(imgWidth)) // ~25% width
+		speakerBoxWidth := int(0.20 * float64(imgWidth)) // ~25% width
 		lineSpacing := 1.1
 
 		// Speaker 2 box (right)
-		speaker2BoxX := int(0.62 * float64(imgWidth))  // ~62% from left
-		speaker2BoxY := int(0.36 * float64(imgHeight)) // ~36% from top
+		speaker2BoxX := int(0.73 * float64(imgWidth))  // ~62% from left
+		speaker2BoxY := int(0.65 * float64(imgHeight)) // ~36% from top
 
 		// Render Speaker 1 (title + name)
 		font1 := loadFont(template.Speaker1title.Font)

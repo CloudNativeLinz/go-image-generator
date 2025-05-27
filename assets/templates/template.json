@@ -36,7 +36,7 @@
   "speaker2title": {
     "font": "assets/fonts/LBRITE.TTF",
     "fontSize": 40,
-    "color": "#FFFFFF",
+    "color": "#000000",
     "position": {
       "x": 75,
       "y": 70
@@ -47,7 +47,7 @@
   "speaker2name": {
     "font": "assets/fonts/LBRITED.TTF",
     "fontSize": 32,
-    "color": "#FFFFFF",
+    "color": "#000000",
     "position": {
       "x": 75,
       "y": 80
