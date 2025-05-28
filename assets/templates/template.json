@@ -54,5 +54,27 @@
     },
     "boxWidth": 300,
     "text": "Markus Gierlinger"
+  },
+  "sponsor": {
+    "font": "assets/fonts/LBRITE.TTF",
+    "fontSize": 32,
+    "color": "#000000",
+    "position": {
+      "x": 25,
+      "y": 950
+    },
+    "boxWidth": 300,
+    "text": ""
+  },
+  "date": {
+    "font": "assets/fonts/LBRITE.TTF",
+    "fontSize": 68,
+    "color": "#ffffff",
+    "position": {
+      "x": 25,
+      "y": 1000
+    },
+    "boxWidth": 300,
+    "text": ""
   }
 }
