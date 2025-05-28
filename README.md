@@ -46,7 +46,7 @@ To generate an image, run the application with the necessary command-line argume
 
 ### Example Command
 ```
-go run cmd/main.go --background assets/backgrounds/cncf.jpg --template assets/templates/template.json --output file.jpg
+ go run cmd/main.go --template assets/templates/template.json --output file.jpg --id 15
 ```
 
 ## Contributing
