@@ -41,11 +41,29 @@ func main() {
 	// Define command-line arguments
 	backgroundPath := flag.String("background", "", "Path to the background image")
 	overlayPaths := flag.String("overlays", "", "Comma-separated paths to overlay images")
-	outputPath := flag.String("output", "output.jpg", "Path to save the final image")
+	outputPath := flag.String("output", "", "Path to save the final image")
 	templatePath := flag.String("template", "", "Path to the JSON template file") // Template file
 	eventID := flag.String("id", "", "ID of the event in events.yml to use for speaker/talk text")
 
 	flag.Parse()
+
+	// --- Artifact output directory logic ---
+	artifactsDir := "artifacts"
+	if _, err := os.Stat(artifactsDir); os.IsNotExist(err) {
+		err := os.MkdirAll(artifactsDir, 0755)
+		if err != nil {
+			log.Fatalf("Error creating artifacts directory: %v", err)
+		}
+	}
+
+	// Set default output path if not provided
+	finalOutputPath := *outputPath
+	if finalOutputPath == "" {
+		finalOutputPath = artifactsDir + "/output.jpg"
+	} else if !strings.Contains(finalOutputPath, "/") && !strings.HasPrefix(finalOutputPath, ".") {
+		// If only a filename is given, save it in artifacts/
+		finalOutputPath = artifactsDir + "/" + finalOutputPath
+	}
 
 	// Check if the templates directory exists
 	templatesDir := "assets/templates"
@@ -419,12 +437,12 @@ func main() {
 	}
 
 	// Save final image
-	err = utils.SaveImage(*outputPath, rgbaFinalImage)
+	err = utils.SaveImage(finalOutputPath, rgbaFinalImage)
 	if err != nil {
 		log.Fatalf("Error saving final image: %v", err)
 	}
 
-	fmt.Println("Image generated successfully:", *outputPath)
+	fmt.Println("Image generated successfully:", finalOutputPath)
 }
 
 func wrapText(text string, maxWidth int, font *opentype.Font, fontSize float64) []string {
