@@ -10,16 +10,15 @@
       "height": 1080
     }
   },
-  
   "speaker1title": {
     "font": "assets/fonts/LBRITE.TTF",
     "fontSize": 40,
     "color": "#000000",
     "position": {
-      "x": 25,
-      "y": 70
+      "x": 0.33,
+      "y": 0.50
     },
-    "boxWidth": 400,
+    "boxWidth": 0.20,
     "text": "OpenRewrite in a Nutshell: Scaling Upgrades with Practical Insights"
   },
   "speaker1name": {
@@ -27,10 +26,10 @@
     "fontSize": 32,
     "color": "#000000",
     "position": {
-      "x": 25,
-      "y": 80
+      "x": 0.33,
+      "y": 0.50
     },
-    "boxWidth": 300,
+    "boxWidth": 0.20,
     "text": "Simon Gartner"
   },
   "speaker2title": {
@@ -38,10 +37,10 @@
     "fontSize": 40,
     "color": "#000000",
     "position": {
-      "x": 75,
-      "y": 70
+      "x": 0.73,
+      "y": 0.65
     },
-    "boxWidth": 300,
+    "boxWidth": 0.20,
     "text": "Adversary Emulation for Kubernetes Environments"
   },
   "speaker2name": {
@@ -49,10 +48,10 @@
     "fontSize": 32,
     "color": "#000000",
     "position": {
-      "x": 75,
-      "y": 80
+      "x": 0.73,
+      "y": 0.65
     },
-    "boxWidth": 300,
+    "boxWidth": 0.20,
     "text": "Markus Gierlinger"
   },
   "sponsor": {
@@ -60,10 +59,10 @@
     "fontSize": 32,
     "color": "#000000",
     "position": {
-      "x": 25,
-      "y": 950
+      "x": 0.05,
+      "y": 0.90
     },
-    "boxWidth": 300,
+    "boxWidth": 0.20,
     "text": ""
   },
   "date": {
@@ -71,10 +70,10 @@
     "fontSize": 68,
     "color": "#ffffff",
     "position": {
-      "x": 25,
-      "y": 1000
+      "x": 0.45,
+      "y": 0.15
     },
-    "boxWidth": 300,
+    "boxWidth": 0.20,
     "text": ""
   }
 }

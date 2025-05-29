@@ -86,66 +86,66 @@ func main() {
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
 				Position struct {
-					X int `json:"x"`
-					Y int `json:"y"`
+					X float64 `json:"x"`
+					Y float64 `json:"y"`
 				} `json:"position"`
-				BoxWidth int    `json:"boxWidth"`
-				Text     string `json:"text"`
+				BoxWidth float64 `json:"boxWidth"`
+				Text     string  `json:"text"`
 			} `json:"speaker1title"`
 			Speaker1name struct {
 				Font     string  `json:"font"`
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
 				Position struct {
-					X int `json:"x"`
-					Y int `json:"y"`
+					X float64 `json:"x"`
+					Y float64 `json:"y"`
 				} `json:"position"`
-				BoxWidth int    `json:"boxWidth"`
-				Text     string `json:"text"`
+				BoxWidth float64 `json:"boxWidth"`
+				Text     string  `json:"text"`
 			} `json:"speaker1name"`
 			Speaker2title struct {
 				Font     string  `json:"font"`
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
 				Position struct {
-					X int `json:"x"`
-					Y int `json:"y"`
+					X float64 `json:"x"`
+					Y float64 `json:"y"`
 				} `json:"position"`
-				BoxWidth int    `json:"boxWidth"`
-				Text     string `json:"text"`
+				BoxWidth float64 `json:"boxWidth"`
+				Text     string  `json:"text"`
 			} `json:"speaker2title"`
 			Speaker2name struct {
 				Font     string  `json:"font"`
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
 				Position struct {
-					X int `json:"x"`
-					Y int `json:"y"`
+					X float64 `json:"x"`
+					Y float64 `json:"y"`
 				} `json:"position"`
-				BoxWidth int    `json:"boxWidth"`
-				Text     string `json:"text"`
+				BoxWidth float64 `json:"boxWidth"`
+				Text     string  `json:"text"`
 			} `json:"speaker2name"`
 			Sponsor struct {
 				Font     string  `json:"font"`
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
 				Position struct {
-					X int `json:"x"`
-					Y int `json:"y"`
+					X float64 `json:"x"`
+					Y float64 `json:"y"`
 				} `json:"position"`
-				BoxWidth int    `json:"boxWidth"`
-				Text     string `json:"text"`
+				BoxWidth float64 `json:"boxWidth"`
+				Text     string  `json:"text"`
 			} `json:"sponsor"`
 			Date struct {
 				Font     string  `json:"font"`
 				FontSize float64 `json:"fontSize"`
 				Color    string  `json:"color"`
 				Position struct {
-					X int `json:"x"`
-					Y int `json:"y"`
+					X float64 `json:"x"`
+					Y float64 `json:"y"`
 				} `json:"position"`
-				BoxWidth int    `json:"boxWidth"`
-				Text     string `json:"text"`
+				BoxWidth float64 `json:"boxWidth"`
+				Text     string  `json:"text"`
 			} `json:"date"`
 		}
 		if err := json.Unmarshal(templateData, &template); err != nil {
@@ -252,10 +252,10 @@ func main() {
 				FontSize float64
 				Color    string
 				Position struct {
-					X int
-					Y int
+					X float64
+					Y float64
 				}
-				BoxWidth int
+				BoxWidth float64
 			}
 			Speaker1name struct {
 				Text     string
@@ -263,10 +263,10 @@ func main() {
 				FontSize float64
 				Color    string
 				Position struct {
-					X int
-					Y int
+					X float64
+					Y float64
 				}
-				BoxWidth int
+				BoxWidth float64
 			}
 			Speaker2title struct {
 				Text     string
@@ -274,10 +274,10 @@ func main() {
 				FontSize float64
 				Color    string
 				Position struct {
-					X int
-					Y int
+					X float64
+					Y float64
 				}
-				BoxWidth int
+				BoxWidth float64
 			}
 			Speaker2name struct {
 				Text     string
@@ -285,10 +285,10 @@ func main() {
 				FontSize float64
 				Color    string
 				Position struct {
-					X int
-					Y int
+					X float64
+					Y float64
 				}
-				BoxWidth int
+				BoxWidth float64
 			}
 			Sponsor struct {
 				Text     string
@@ -296,10 +296,10 @@ func main() {
 				FontSize float64
 				Color    string
 				Position struct {
-					X int
-					Y int
+					X float64
+					Y float64
 				}
-				BoxWidth int
+				BoxWidth float64
 			}
 			Date struct {
 				Text     string
@@ -307,10 +307,10 @@ func main() {
 				FontSize float64
 				Color    string
 				Position struct {
-					X int
-					Y int
+					X float64
+					Y float64
 				}
-				BoxWidth int
+				BoxWidth float64
 			}
 		}
 		if err := json.Unmarshal(templateData, &template); err != nil {
@@ -342,17 +342,16 @@ func main() {
 		imgWidth := rgbaFinalImage.Bounds().Dx()
 		imgHeight := rgbaFinalImage.Bounds().Dy()
 
-		// TODO get the positions from the template.json file
-
-		// Speaker 1 box (left)
-		speaker1BoxX := int(0.33 * float64(imgWidth))    // ~33% from left
-		speaker1BoxY := int(0.50 * float64(imgHeight))   // ~50% from top
-		speakerBoxWidth := int(0.20 * float64(imgWidth)) // ~20% width
 		lineSpacing := 1.1
 
-		// Speaker 2 box (right
-		speaker2BoxX := int(0.73 * float64(imgWidth))  // ~73% from left
-		speaker2BoxY := int(0.65 * float64(imgHeight)) // ~65% from top
+		// Speaker 1 box (left)
+		speaker1BoxX := int(template.Speaker1title.Position.X * float64(imgWidth))
+		speaker1BoxY := int(template.Speaker1title.Position.Y * float64(imgHeight))
+		speakerBoxWidth := int(template.Speaker1title.BoxWidth * float64(imgWidth))
+
+		// Speaker 2 box (right)
+		speaker2BoxX := int(template.Speaker2title.Position.X * float64(imgWidth))
+		speaker2BoxY := int(template.Speaker2title.Position.Y * float64(imgHeight))
 
 		// Render Speaker 1 (title + name)
 		font1 := loadFont(template.Speaker1title.Font)
@@ -377,11 +376,13 @@ func main() {
 			}
 		}
 
+		// Speaker 2 box width (use template value for boxWidth)
+		speaker2BoxWidth := int(template.Speaker2title.BoxWidth * float64(imgWidth))
 		// Render Speaker 2 (title + name)
 		font3 := loadFont(template.Speaker2title.Font)
 		font4 := loadFont(template.Speaker2name.Font)
-		wrappedTitle2 := wrapText(template.Speaker2title.Text, speakerBoxWidth, font3, template.Speaker2title.FontSize)
-		wrappedName2 := wrapText(template.Speaker2name.Text, speakerBoxWidth, font4, template.Speaker2name.FontSize)
+		wrappedTitle2 := wrapText(template.Speaker2title.Text, speaker2BoxWidth, font3, template.Speaker2title.FontSize)
+		wrappedName2 := wrapText(template.Speaker2name.Text, speaker2BoxWidth, font4, template.Speaker2name.FontSize)
 		// Draw title
 		for i, line := range wrappedTitle2 {
 			y := speaker2BoxY + int(float64(i)*template.Speaker2title.FontSize*lineSpacing)
@@ -401,24 +402,20 @@ func main() {
 		}
 
 		// Draw sponsor text at the bottom
-		sponsorBoxX := int(0.05 * float64(imgWidth))
-		sponsorBoxY := int(0.90 * float64(imgHeight))
-
-		// Draw sponsor text
+		sponsorBoxX := int(template.Sponsor.Position.X * float64(imgWidth))
+		sponsorBoxY := int(template.Sponsor.Position.Y * float64(imgHeight))
 		err = textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, template.Sponsor.Text, template.Sponsor.Font, template.Sponsor.FontSize, template.Sponsor.Color, sponsorBoxX, sponsorBoxY)
 		if err != nil {
 			log.Printf("Error rendering sponsor text: %v", err)
 		}
 
 		// Draw date text at the top right
-		dateBoxX := int(0.45 * float64(imgWidth))
-		dateBoxY := int(0.15 * float64(imgHeight))
-		// Draw date text
+		dateBoxX := int(template.Date.Position.X * float64(imgWidth))
+		dateBoxY := int(template.Date.Position.Y * float64(imgHeight))
 		err = textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, template.Date.Text, template.Date.Font, template.Date.FontSize, template.Date.Color, dateBoxX, dateBoxY)
 		if err != nil {
 			log.Printf("Error rendering date text: %v", err)
 		}
-
 	}
 
 	// Save final image
