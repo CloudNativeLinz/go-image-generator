@@ -29,7 +29,6 @@ jobs:
         run: |
           go run ./cmd/main.go \
             --background assets/backgrounds/test.jpg \
-            --overlays assets/overlays \
             --template assets/templates/template.json \
             --output output.jpg \
             ${{ github.event.inputs.id && format('--id {0}', github.event.inputs.id) || '' }}
