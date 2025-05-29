@@ -1,0 +1,30 @@
+# Ignore Go build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Ignore vendor directory (if not using vendoring)
+vendor/
+
+# Ignore IDE/editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Ignore OS generated files
+.DS_Store
+Thumbs.db
+
+# Ignore coverage files
+coverage.out
+
+# Ignore logs
+*.log
+
+# Ignore output image files
+file.jpg
