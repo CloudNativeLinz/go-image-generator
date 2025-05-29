@@ -27,4 +27,4 @@ coverage.out
 *.log
 
 # Ignore output image files
-file.jpg
+artifacts/

@@ -1,0 +1,41 @@
+name: Generate Image Artifact
+
+on:
+  workflow_dispatch:
+    inputs:
+      id:
+        description: 'Event ID to use for --id'
+        required: false
+        default: ''
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Install dependencies
+        run: go mod download
+
+      - name: Generate image
+        run: |
+          go run ./cmd/main.go \
+            --background assets/backgrounds/test.jpg \
+            --overlays assets/overlays \
+            --template assets/templates/template.json \
+            --output output.jpg \
+            ${{ github.event.inputs.id && format('--id {0}', github.event.inputs.id) || '' }}
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-image
+          path: artifacts/
