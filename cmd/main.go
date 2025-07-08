@@ -12,6 +12,7 @@ import (
 
 	"go-image-generator/pkg/renderer"
 	"go-image-generator/pkg/templates"
+	"go-image-generator/pkg/types"
 	"go-image-generator/pkg/utils"
 
 	"golang.org/x/image/font"
@@ -21,21 +22,136 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
-// Structs for parsing events.yml
-type Talk struct {
-	Title   string `yaml:"title"`
-	Speaker string `yaml:"speaker"`
+// loadTemplate loads and parses a template file
+func loadTemplate(templatePath string) (*types.Template, error) {
+	templateData, err := os.ReadFile(templatePath)
+	if err != nil {
+		return nil, fmt.Errorf("error reading template file: %w", err)
+	}
+
+	var template types.Template
+	if err := json.Unmarshal(templateData, &template); err != nil {
+		return nil, fmt.Errorf("error parsing template JSON: %w", err)
+	}
+
+	return &template, nil
 }
 
-type Event struct {
-	ID    int    `yaml:"id"`
-	Date  string `yaml:"date"`
-	Title string `yaml:"title"`
-	Talks []Talk `yaml:"talks"`
-	Host  string `yaml:"host"`
+// loadEventData loads event data from events.yml and extracts information for the given eventID
+func loadEventData(eventID string) (*types.EventData, error) {
+	eventsData, err := os.ReadFile("_data/events.yml")
+	if err != nil {
+		return nil, fmt.Errorf("error reading events.yml: %w", err)
+	}
+
+	var events types.EventsYAML
+	if err = yaml.Unmarshal(eventsData, &events); err != nil {
+		return nil, fmt.Errorf("error parsing events.yml: %w", err)
+	}
+
+	for _, event := range events {
+		if fmt.Sprintf("%d", event.ID) == eventID {
+			eventData := &types.EventData{}
+
+			if len(event.Talks) > 0 {
+				eventData.Speaker1Title = event.Talks[0].Title
+				eventData.Speaker1Name = event.Talks[0].Speaker
+			}
+			if len(event.Talks) > 1 {
+				eventData.Speaker2Title = event.Talks[1].Title
+				eventData.Speaker2Name = event.Talks[1].Speaker
+			}
+			if event.Host != "" {
+				eventData.Sponsor = event.Host
+			}
+			if event.Date != "" {
+				eventData.Date = event.Date
+			}
+
+			return eventData, nil
+		}
+	}
+
+	return nil, fmt.Errorf("event with ID %s not found in events.yml", eventID)
 }
 
-type EventsYAML []Event
+// renderTextElement renders a text element with proper wrapping and positioning
+func renderTextElement(textRenderer *renderer.TextRenderer, img *image.RGBA, element types.TextElement, imgWidth, imgHeight int, lineSpacing float64) error {
+	boxX := int(element.Position.X * float64(imgWidth))
+	boxY := int(element.Position.Y * float64(imgHeight))
+	boxWidth := int(element.BoxWidth * float64(imgWidth))
+
+	font := loadFont(element.Font)
+	wrappedText := wrapText(element.Text, boxWidth, font, element.FontSize)
+
+	for i, line := range wrappedText {
+		y := boxY + int(float64(i)*element.FontSize*lineSpacing)
+		err := textRenderer.RenderTextWithPositionAndColor(img, line, element.Font, element.FontSize, element.Color, boxX, y)
+		if err != nil {
+			return fmt.Errorf("error rendering text: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// renderSpeakerPair renders both title and name for a speaker with proper spacing
+func renderSpeakerPair(textRenderer *renderer.TextRenderer, img *image.RGBA, titleElement, nameElement types.TextElement, imgWidth, imgHeight int, lineSpacing float64) error {
+	// Calculate positions
+	titleBoxX := int(titleElement.Position.X * float64(imgWidth))
+	titleBoxY := int(titleElement.Position.Y * float64(imgHeight))
+	titleBoxWidth := int(titleElement.BoxWidth * float64(imgWidth))
+	nameBoxWidth := int(nameElement.BoxWidth * float64(imgWidth))
+
+	// Load fonts and wrap text
+	titleFont := loadFont(titleElement.Font)
+	nameFont := loadFont(nameElement.Font)
+	wrappedTitle := wrapText(titleElement.Text, titleBoxWidth, titleFont, titleElement.FontSize)
+	wrappedName := wrapText(nameElement.Text, nameBoxWidth, nameFont, nameElement.FontSize)
+
+	// Render title
+	for i, line := range wrappedTitle {
+		y := titleBoxY + int(float64(i)*titleElement.FontSize*lineSpacing)
+		err := textRenderer.RenderTextWithPositionAndColor(img, line, titleElement.Font, titleElement.FontSize, titleElement.Color, titleBoxX, y)
+		if err != nil {
+			return fmt.Errorf("error rendering title: %w", err)
+		}
+	}
+
+	// Render name below title with spacing
+	nameStartY := titleBoxY + int(float64(len(wrappedTitle))*titleElement.FontSize*lineSpacing) + int(nameElement.FontSize*0.5)
+	for i, line := range wrappedName {
+		y := nameStartY + int(float64(i)*nameElement.FontSize*lineSpacing)
+		err := textRenderer.RenderTextWithPositionAndColor(img, line, nameElement.Font, nameElement.FontSize, nameElement.Color, titleBoxX, y)
+		if err != nil {
+			return fmt.Errorf("error rendering name: %w", err)
+		}
+	}
+
+	return nil
+}
+
+// applyEventDataToTemplate applies event data to template, overriding text fields
+func applyEventDataToTemplate(template *types.Template, eventData *types.EventData) {
+	if eventData.Speaker1Title != "" {
+		template.Speaker1title.Text = eventData.Speaker1Title
+	}
+	if eventData.Speaker1Name != "" {
+		template.Speaker1name.Text = eventData.Speaker1Name
+	}
+	if eventData.Speaker2Title != "" {
+		template.Speaker2title.Text = eventData.Speaker2Title
+	}
+	if eventData.Speaker2Name != "" {
+		template.Speaker2name.Text = eventData.Speaker2Name
+	}
+	if eventData.Sponsor != "" {
+		template.Sponsor.Text = eventData.Sponsor
+	}
+	if eventData.Date != "" {
+		template.Date.Text = eventData.Date
+	}
+}
 
 func main() {
 	// Define command-line arguments
@@ -78,97 +194,15 @@ func main() {
 		fmt.Println("Available templates:", availableTemplates)
 	}
 
-	// Remove initial background loading from CLI variable
-	// Only load background after parsing template (if provided)
+	// Load background image based on template or CLI argument
 	var background image.Image
 	var err error
 	if *templatePath != "" {
-		templateData, err := os.ReadFile(*templatePath)
+		template, err := loadTemplate(*templatePath)
 		if err != nil {
-			log.Fatalf("Error reading template file: %v", err)
+			log.Fatalf("Error loading template: %v", err)
 		}
-		var template struct {
-			Background struct {
-				Image    string `json:"image"`
-				Position struct {
-					X int `json:"x"`
-					Y int `json:"y"`
-				} `json:"position"`
-				Size struct {
-					Width  int `json:"width"`
-					Height int `json:"height"`
-				} `json:"size"`
-			} `json:"background"`
-			Speaker1title struct {
-				Font     string  `json:"font"`
-				FontSize float64 `json:"fontSize"`
-				Color    string  `json:"color"`
-				Position struct {
-					X float64 `json:"x"`
-					Y float64 `json:"y"`
-				} `json:"position"`
-				BoxWidth float64 `json:"boxWidth"`
-				Text     string  `json:"text"`
-			} `json:"speaker1title"`
-			Speaker1name struct {
-				Font     string  `json:"font"`
-				FontSize float64 `json:"fontSize"`
-				Color    string  `json:"color"`
-				Position struct {
-					X float64 `json:"x"`
-					Y float64 `json:"y"`
-				} `json:"position"`
-				BoxWidth float64 `json:"boxWidth"`
-				Text     string  `json:"text"`
-			} `json:"speaker1name"`
-			Speaker2title struct {
-				Font     string  `json:"font"`
-				FontSize float64 `json:"fontSize"`
-				Color    string  `json:"color"`
-				Position struct {
-					X float64 `json:"x"`
-					Y float64 `json:"y"`
-				} `json:"position"`
-				BoxWidth float64 `json:"boxWidth"`
-				Text     string  `json:"text"`
-			} `json:"speaker2title"`
-			Speaker2name struct {
-				Font     string  `json:"font"`
-				FontSize float64 `json:"fontSize"`
-				Color    string  `json:"color"`
-				Position struct {
-					X float64 `json:"x"`
-					Y float64 `json:"y"`
-				} `json:"position"`
-				BoxWidth float64 `json:"boxWidth"`
-				Text     string  `json:"text"`
-			} `json:"speaker2name"`
-			Sponsor struct {
-				Font     string  `json:"font"`
-				FontSize float64 `json:"fontSize"`
-				Color    string  `json:"color"`
-				Position struct {
-					X float64 `json:"x"`
-					Y float64 `json:"y"`
-				} `json:"position"`
-				BoxWidth float64 `json:"boxWidth"`
-				Text     string  `json:"text"`
-			} `json:"sponsor"`
-			Date struct {
-				Font     string  `json:"font"`
-				FontSize float64 `json:"fontSize"`
-				Color    string  `json:"color"`
-				Position struct {
-					X float64 `json:"x"`
-					Y float64 `json:"y"`
-				} `json:"position"`
-				BoxWidth float64 `json:"boxWidth"`
-				Text     string  `json:"text"`
-			} `json:"date"`
-		}
-		if err := json.Unmarshal(templateData, &template); err != nil {
-			log.Fatalf("Error parsing template JSON: %v", err)
-		}
+
 		backgroundPathToUse := template.Background.Image
 		if backgroundPathToUse == "" {
 			log.Fatalf("No background image specified in template.json.")
@@ -177,7 +211,6 @@ func main() {
 		if err != nil {
 			log.Fatalf("Error loading background image: %v", err)
 		}
-		// ...existing code for overlays, rendering, etc...
 	} else {
 		// Fallback: use CLI backgroundPath if no template is provided
 		if *backgroundPath == "" {
@@ -213,226 +246,47 @@ func main() {
 	// Create text renderer
 	textRenderer := renderer.TextRenderer{}
 
-	// If --id is provided, parse events.yml and extract talk info
-	var speaker1Title, speaker1Name, speaker2Title, speaker2Name, sponsor, date string
-	useEventTalks := false
+	// Load event data if eventID is provided
+	var eventData *types.EventData
 	if *eventID != "" {
-		eventsData, err := os.ReadFile("_data/events.yml")
+		var err error
+		eventData, err = loadEventData(*eventID)
 		if err != nil {
-			log.Fatalf("Error reading events.yml: %v", err)
-		}
-		var events EventsYAML
-		err = yaml.Unmarshal(eventsData, &events)
-		if err != nil {
-			log.Fatalf("Error parsing events.yml: %v", err)
-		}
-		found := false
-		for _, event := range events {
-			if fmt.Sprintf("%d", event.ID) == *eventID {
-				if len(event.Talks) > 0 {
-					speaker1Title = event.Talks[0].Title
-					speaker1Name = event.Talks[0].Speaker
-				}
-				if len(event.Talks) > 1 {
-					speaker2Title = event.Talks[1].Title
-					speaker2Name = event.Talks[1].Speaker
-				}
-				if event.Host != "" {
-					sponsor = event.Host
-				}
-				if event.Date != "" {
-					date = event.Date
-				}
-				found = true
-				useEventTalks = true
-				break
-			}
-		}
-		if !found {
-			log.Fatalf("Event with ID %s not found in events.yml", *eventID)
+			log.Fatalf("Error loading event data: %v", err)
 		}
 	}
 
-	// Remove unused variable warning for useEventTalks
-	_ = useEventTalks
-
-	// --- Render speaker text in correct box positions and avoid overlaying ---
-	// Use extracted talk info if available, otherwise fallback to template.json text
+	// Render text using template if provided
 	if *templatePath != "" {
-		templateData, err := os.ReadFile(*templatePath)
+		template, err := loadTemplate(*templatePath)
 		if err != nil {
-			log.Fatalf("Error reading template file: %v", err)
-		}
-		var template struct {
-			Speaker1title struct {
-				Text     string
-				Font     string
-				FontSize float64
-				Color    string
-				Position struct {
-					X float64
-					Y float64
-				}
-				BoxWidth float64
-			}
-			Speaker1name struct {
-				Text     string
-				Font     string
-				FontSize float64
-				Color    string
-				Position struct {
-					X float64
-					Y float64
-				}
-				BoxWidth float64
-			}
-			Speaker2title struct {
-				Text     string
-				Font     string
-				FontSize float64
-				Color    string
-				Position struct {
-					X float64
-					Y float64
-				}
-				BoxWidth float64
-			}
-			Speaker2name struct {
-				Text     string
-				Font     string
-				FontSize float64
-				Color    string
-				Position struct {
-					X float64
-					Y float64
-				}
-				BoxWidth float64
-			}
-			Sponsor struct {
-				Text     string
-				Font     string
-				FontSize float64
-				Color    string
-				Position struct {
-					X float64
-					Y float64
-				}
-				BoxWidth float64
-			}
-			Date struct {
-				Text     string
-				Font     string
-				FontSize float64
-				Color    string
-				Position struct {
-					X float64
-					Y float64
-				}
-				BoxWidth float64
-			}
-		}
-		if err := json.Unmarshal(templateData, &template); err != nil {
-			log.Fatalf("Error parsing template JSON: %v", err)
+			log.Fatalf("Error loading template for rendering: %v", err)
 		}
 
-		// Override text fields if event talks are available
-		if *eventID != "" {
-			if speaker1Title != "" {
-				template.Speaker1title.Text = speaker1Title
-			}
-			if speaker1Name != "" {
-				template.Speaker1name.Text = speaker1Name
-			}
-			if speaker2Title != "" {
-				template.Speaker2title.Text = speaker2Title
-			}
-			if speaker2Name != "" {
-				template.Speaker2name.Text = speaker2Name
-			}
-			if sponsor != "" {
-				template.Sponsor.Text = sponsor
-			}
-			if date != "" {
-				template.Date.Text = date
-			}
+		// Apply event data to template if available
+		if eventData != nil {
+			applyEventDataToTemplate(template, eventData)
 		}
 
 		imgWidth := rgbaFinalImage.Bounds().Dx()
 		imgHeight := rgbaFinalImage.Bounds().Dy()
-
 		lineSpacing := 1.1
 
-		// Speaker 1 box (left)
-		speaker1BoxX := int(template.Speaker1title.Position.X * float64(imgWidth))
-		speaker1BoxY := int(template.Speaker1title.Position.Y * float64(imgHeight))
-		speakerBoxWidth := int(template.Speaker1title.BoxWidth * float64(imgWidth))
-
-		// Speaker 2 box (right)
-		speaker2BoxX := int(template.Speaker2title.Position.X * float64(imgWidth))
-		speaker2BoxY := int(template.Speaker2title.Position.Y * float64(imgHeight))
-
-		// Render Speaker 1 (title + name)
-		font1 := loadFont(template.Speaker1title.Font)
-		font2 := loadFont(template.Speaker1name.Font)
-		wrappedTitle1 := wrapText(template.Speaker1title.Text, speakerBoxWidth, font1, template.Speaker1title.FontSize)
-		wrappedName1 := wrapText(template.Speaker1name.Text, speakerBoxWidth, font2, template.Speaker1name.FontSize)
-		// Draw title
-		for i, line := range wrappedTitle1 {
-			y := speaker1BoxY + int(float64(i)*template.Speaker1title.FontSize*lineSpacing)
-			err := textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, line, template.Speaker1title.Font, template.Speaker1title.FontSize, template.Speaker1title.Color, speaker1BoxX, y)
-			if err != nil {
-				log.Printf("Error rendering speaker1 title: %v", err)
-			}
-		}
-		// Draw name below title
-		nameStartY := speaker1BoxY + int(float64(len(wrappedTitle1))*template.Speaker1title.FontSize*lineSpacing) + int(template.Speaker1name.FontSize*0.5)
-		for i, line := range wrappedName1 {
-			y := nameStartY + int(float64(i)*template.Speaker1name.FontSize*lineSpacing)
-			err := textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, line, template.Speaker1name.Font, template.Speaker1name.FontSize, template.Speaker1name.Color, speaker1BoxX, y)
-			if err != nil {
-				log.Printf("Error rendering speaker1 name: %v", err)
-			}
+		// Render speaker pairs and other text elements
+		if err := renderSpeakerPair(&textRenderer, rgbaFinalImage, template.Speaker1title, template.Speaker1name, imgWidth, imgHeight, lineSpacing); err != nil {
+			log.Printf("Error rendering speaker 1: %v", err)
 		}
 
-		// Speaker 2 box width (use template value for boxWidth)
-		speaker2BoxWidth := int(template.Speaker2title.BoxWidth * float64(imgWidth))
-		// Render Speaker 2 (title + name)
-		font3 := loadFont(template.Speaker2title.Font)
-		font4 := loadFont(template.Speaker2name.Font)
-		wrappedTitle2 := wrapText(template.Speaker2title.Text, speaker2BoxWidth, font3, template.Speaker2title.FontSize)
-		wrappedName2 := wrapText(template.Speaker2name.Text, speaker2BoxWidth, font4, template.Speaker2name.FontSize)
-		// Draw title
-		for i, line := range wrappedTitle2 {
-			y := speaker2BoxY + int(float64(i)*template.Speaker2title.FontSize*lineSpacing)
-			err := textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, line, template.Speaker2title.Font, template.Speaker2title.FontSize, template.Speaker2title.Color, speaker2BoxX, y)
-			if err != nil {
-				log.Printf("Error rendering speaker2 title: %v", err)
-			}
-		}
-		// Draw name below title
-		name2StartY := speaker2BoxY + int(float64(len(wrappedTitle2))*template.Speaker2title.FontSize*lineSpacing) + int(template.Speaker2name.FontSize*0.5)
-		for i, line := range wrappedName2 {
-			y := name2StartY + int(float64(i)*template.Speaker2name.FontSize*lineSpacing)
-			err := textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, line, template.Speaker2name.Font, template.Speaker2name.FontSize, template.Speaker2name.Color, speaker2BoxX, y)
-			if err != nil {
-				log.Printf("Error rendering speaker2 name: %v", err)
-			}
+		if err := renderSpeakerPair(&textRenderer, rgbaFinalImage, template.Speaker2title, template.Speaker2name, imgWidth, imgHeight, lineSpacing); err != nil {
+			log.Printf("Error rendering speaker 2: %v", err)
 		}
 
-		// Draw sponsor text at the bottom
-		sponsorBoxX := int(template.Sponsor.Position.X * float64(imgWidth))
-		sponsorBoxY := int(template.Sponsor.Position.Y * float64(imgHeight))
-		err = textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, template.Sponsor.Text, template.Sponsor.Font, template.Sponsor.FontSize, template.Sponsor.Color, sponsorBoxX, sponsorBoxY)
-		if err != nil {
-			log.Printf("Error rendering sponsor text: %v", err)
+		if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Sponsor, imgWidth, imgHeight, lineSpacing); err != nil {
+			log.Printf("Error rendering sponsor: %v", err)
 		}
 
-		// Draw date text at the top right
-		dateBoxX := int(template.Date.Position.X * float64(imgWidth))
-		dateBoxY := int(template.Date.Position.Y * float64(imgHeight))
-		err = textRenderer.RenderTextWithPositionAndColor(rgbaFinalImage, template.Date.Text, template.Date.Font, template.Date.FontSize, template.Date.Color, dateBoxX, dateBoxY)
-		if err != nil {
-			log.Printf("Error rendering date text: %v", err)
+		if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Date, imgWidth, imgHeight, lineSpacing); err != nil {
+			log.Printf("Error rendering date: %v", err)
 		}
 	}
 
