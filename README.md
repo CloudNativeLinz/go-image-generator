@@ -6,23 +6,36 @@ The Go Image Generator is a project that allows users to create JPG images based
 ## Project Structure
 ```
 go-image-generator
+├── .github
+│   └── workflows
+│       └── generate-image.yml
+├── .gitignore
+├── Dockerfile
+├── README.md
+├── _data
+│   └── events.yml
+├── artifacts/                    # Generated images output directory
+├── assets
+│   ├── backgrounds
+│   ├── fonts
+│   ├── overlays
+│   └── templates
+│       └── template.json
 ├── cmd
 │   └── main.go
 ├── pkg
-│   ├── templates
-│   │   └── template_loader.go
 │   ├── renderer
 │   │   ├── image_renderer.go
 │   │   └── text_renderer.go
+│   ├── templates
+│   │   └── template_loader.go
+│   ├── types
+│   │   ├── events.go
+│   │   └── template.go
 │   └── utils
 │       └── file_utils.go
-├── assets
-│   ├── backgrounds
-│   ├── overlays
-│   └── fonts
 ├── go.mod
-├── go.sum
-└── README.md
+└── go.sum
 ```
 
 ## Setup Instructions
