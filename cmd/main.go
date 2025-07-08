@@ -22,6 +22,131 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// renderTextFromTemplate renders all text elements from a template onto the image
+func renderTextFromTemplate(templatePath string, eventData *types.EventData, rgbaFinalImage *image.RGBA) error {
+	if templatePath == "" {
+		return nil // No template provided, skip text rendering
+	}
+
+	template, err := loadTemplate(templatePath)
+	if err != nil {
+		return fmt.Errorf("error loading template for rendering: %w", err)
+	}
+
+	// Apply event data to template if available
+	if eventData != nil {
+		applyEventDataToTemplate(template, eventData)
+	}
+
+	imgWidth := rgbaFinalImage.Bounds().Dx()
+	imgHeight := rgbaFinalImage.Bounds().Dy()
+	lineSpacing := 1.1
+	textRenderer := renderer.TextRenderer{}
+
+	// Render speaker pairs and other text elements
+	if err := renderSpeakerPair(&textRenderer, rgbaFinalImage, template.Speaker1title, template.Speaker1name, imgWidth, imgHeight, lineSpacing); err != nil {
+		log.Printf("Error rendering speaker 1: %v", err)
+	}
+
+	if err := renderSpeakerPair(&textRenderer, rgbaFinalImage, template.Speaker2title, template.Speaker2name, imgWidth, imgHeight, lineSpacing); err != nil {
+		log.Printf("Error rendering speaker 2: %v", err)
+	}
+
+	if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Sponsor, imgWidth, imgHeight, lineSpacing); err != nil {
+		log.Printf("Error rendering sponsor: %v", err)
+	}
+
+	if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Date, imgWidth, imgHeight, lineSpacing); err != nil {
+		log.Printf("Error rendering date: %v", err)
+	}
+
+	return nil
+}
+
+// processImages handles background and overlay image processing
+func processImages(background image.Image, overlayPaths string) (*image.RGBA, error) {
+	rgbaBackground := image.NewRGBA(background.Bounds())
+	draw.Draw(rgbaBackground, rgbaBackground.Bounds(), background, image.Point{}, draw.Src)
+
+	// Load overlay images
+	var overlays []string
+	if overlayPaths != "" {
+		overlays = strings.Split(overlayPaths, ",")
+	}
+
+	// Create image renderer and overlay images
+	imgRenderer := renderer.ImageRenderer{}
+	finalImage, err := imgRenderer.OverlayImages(rgbaBackground, overlays)
+	if err != nil {
+		return nil, fmt.Errorf("error rendering background and overlays: %w", err)
+	}
+
+	// Ensure finalImage is of type *image.RGBA
+	rgbaFinalImage, ok := finalImage.(*image.RGBA)
+	if !ok {
+		return nil, fmt.Errorf("finalImage is not of type *image.RGBA")
+	}
+
+	return rgbaFinalImage, nil
+}
+
+// loadBackgroundImage loads background image from template or CLI argument
+func loadBackgroundImage(templatePath, backgroundPath string) (image.Image, error) {
+	if templatePath != "" {
+		template, err := loadTemplate(templatePath)
+		if err != nil {
+			return nil, fmt.Errorf("error loading template: %w", err)
+		}
+
+		backgroundPathToUse := template.Background.Image
+		if backgroundPathToUse == "" {
+			return nil, fmt.Errorf("no background image specified in template.json")
+		}
+		return utils.LoadImage(backgroundPathToUse)
+	}
+
+	// Fallback: use CLI backgroundPath if no template is provided
+	if backgroundPath == "" {
+		return nil, fmt.Errorf("no background image specified. Use --background or provide a template with a background image")
+	}
+	return utils.LoadImage(backgroundPath)
+}
+
+// checkTemplatesDirectory checks if templates directory exists and loads available templates
+func checkTemplatesDirectory() {
+	templatesDir := "assets/templates"
+	if _, err := os.Stat(templatesDir); os.IsNotExist(err) {
+		log.Printf("Warning: Templates directory '%s' does not exist. Continuing without templates.", templatesDir)
+	} else {
+		// Load templates
+		availableTemplates, err := templates.LoadTemplates(templatesDir)
+		if err != nil {
+			log.Fatalf("Error loading templates: %v", err)
+		}
+		fmt.Println("Available templates:", availableTemplates)
+	}
+}
+
+// setupOutputPath creates artifacts directory and determines final output path
+func setupOutputPath(outputPath string) (string, error) {
+	artifactsDir := "artifacts"
+	if _, err := os.Stat(artifactsDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(artifactsDir, 0755); err != nil {
+			return "", fmt.Errorf("error creating artifacts directory: %w", err)
+		}
+	}
+
+	finalOutputPath := outputPath
+	if finalOutputPath == "" {
+		finalOutputPath = artifactsDir + "/output.jpg"
+	} else if !strings.Contains(finalOutputPath, "/") && !strings.HasPrefix(finalOutputPath, ".") {
+		// If only a filename is given, save it in artifacts/
+		finalOutputPath = artifactsDir + "/" + finalOutputPath
+	}
+
+	return finalOutputPath, nil
+}
+
 // loadTemplate loads and parses a template file
 func loadTemplate(templatePath string) (*types.Template, error) {
 	templateData, err := os.ReadFile(templatePath)
@@ -163,93 +288,29 @@ func main() {
 
 	flag.Parse()
 
-	// --- Artifact output directory logic ---
-	artifactsDir := "artifacts"
-	if _, err := os.Stat(artifactsDir); os.IsNotExist(err) {
-		err := os.MkdirAll(artifactsDir, 0755)
-		if err != nil {
-			log.Fatalf("Error creating artifacts directory: %v", err)
-		}
-	}
-
-	// Set default output path if not provided
-	finalOutputPath := *outputPath
-	if finalOutputPath == "" {
-		finalOutputPath = artifactsDir + "/output.jpg"
-	} else if !strings.Contains(finalOutputPath, "/") && !strings.HasPrefix(finalOutputPath, ".") {
-		// If only a filename is given, save it in artifacts/
-		finalOutputPath = artifactsDir + "/" + finalOutputPath
-	}
-
-	// Check if the templates directory exists
-	templatesDir := "assets/templates"
-	if _, err := os.Stat(templatesDir); os.IsNotExist(err) {
-		log.Printf("Warning: Templates directory '%s' does not exist. Continuing without templates.", templatesDir)
-	} else {
-		// Load templates
-		availableTemplates, err := templates.LoadTemplates(templatesDir)
-		if err != nil {
-			log.Fatalf("Error loading templates: %v", err)
-		}
-		fmt.Println("Available templates:", availableTemplates)
-	}
-
-	// Load background image based on template or CLI argument
-	var background image.Image
-	var err error
-	if *templatePath != "" {
-		template, err := loadTemplate(*templatePath)
-		if err != nil {
-			log.Fatalf("Error loading template: %v", err)
-		}
-
-		backgroundPathToUse := template.Background.Image
-		if backgroundPathToUse == "" {
-			log.Fatalf("No background image specified in template.json.")
-		}
-		background, err = utils.LoadImage(backgroundPathToUse)
-		if err != nil {
-			log.Fatalf("Error loading background image: %v", err)
-		}
-	} else {
-		// Fallback: use CLI backgroundPath if no template is provided
-		if *backgroundPath == "" {
-			log.Fatalf("No background image specified. Use --background or provide a template with a background image.")
-		}
-		background, err = utils.LoadImage(*backgroundPath)
-		if err != nil {
-			log.Fatalf("Error loading background image: %v", err)
-		}
-	}
-	rgbaBackground := image.NewRGBA(background.Bounds())
-	draw.Draw(rgbaBackground, rgbaBackground.Bounds(), background, image.Point{}, draw.Src)
-
-	// Load overlay images
-	var overlays []string
-	if *overlayPaths != "" {
-		overlays = strings.Split(*overlayPaths, ",")
-	}
-
-	// Create image renderer
-	imgRenderer := renderer.ImageRenderer{}
-	finalImage, err := imgRenderer.OverlayImages(rgbaBackground, overlays)
+	// Setup output path and artifacts directory
+	finalOutputPath, err := setupOutputPath(*outputPath)
 	if err != nil {
-		log.Fatalf("Error rendering background and overlays: %v", err)
+		log.Fatalf("Error setting up output path: %v", err)
 	}
 
-	// Ensure finalImage is of type *image.RGBA
-	rgbaFinalImage, ok := finalImage.(*image.RGBA)
-	if !ok {
-		log.Fatalf("Error: finalImage is not of type *image.RGBA")
-	}
+	// Check templates directory
+	checkTemplatesDirectory()
 
-	// Create text renderer
-	textRenderer := renderer.TextRenderer{}
+	// Load background image
+	background, err := loadBackgroundImage(*templatePath, *backgroundPath)
+	if err != nil {
+		log.Fatalf("Error loading background image: %v", err)
+	}
+	// Process background and overlay images
+	rgbaFinalImage, err := processImages(background, *overlayPaths)
+	if err != nil {
+		log.Fatalf("Error processing images: %v", err)
+	}
 
 	// Load event data if eventID is provided
 	var eventData *types.EventData
 	if *eventID != "" {
-		var err error
 		eventData, err = loadEventData(*eventID)
 		if err != nil {
 			log.Fatalf("Error loading event data: %v", err)
@@ -257,37 +318,8 @@ func main() {
 	}
 
 	// Render text using template if provided
-	if *templatePath != "" {
-		template, err := loadTemplate(*templatePath)
-		if err != nil {
-			log.Fatalf("Error loading template for rendering: %v", err)
-		}
-
-		// Apply event data to template if available
-		if eventData != nil {
-			applyEventDataToTemplate(template, eventData)
-		}
-
-		imgWidth := rgbaFinalImage.Bounds().Dx()
-		imgHeight := rgbaFinalImage.Bounds().Dy()
-		lineSpacing := 1.1
-
-		// Render speaker pairs and other text elements
-		if err := renderSpeakerPair(&textRenderer, rgbaFinalImage, template.Speaker1title, template.Speaker1name, imgWidth, imgHeight, lineSpacing); err != nil {
-			log.Printf("Error rendering speaker 1: %v", err)
-		}
-
-		if err := renderSpeakerPair(&textRenderer, rgbaFinalImage, template.Speaker2title, template.Speaker2name, imgWidth, imgHeight, lineSpacing); err != nil {
-			log.Printf("Error rendering speaker 2: %v", err)
-		}
-
-		if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Sponsor, imgWidth, imgHeight, lineSpacing); err != nil {
-			log.Printf("Error rendering sponsor: %v", err)
-		}
-
-		if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Date, imgWidth, imgHeight, lineSpacing); err != nil {
-			log.Printf("Error rendering date: %v", err)
-		}
+	if err := renderTextFromTemplate(*templatePath, eventData, rgbaFinalImage); err != nil {
+		log.Fatalf("Error rendering text: %v", err)
 	}
 
 	// Save final image
