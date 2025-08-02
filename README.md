@@ -73,11 +73,13 @@ To generate an image, run the application with the necessary command-line argume
 
 ### Example Command
 ```
-go run cmd/main.go --template assets/templates/template.json --output file.jpg --id 41
+go run cmd/main.go --template assets/templates/template.json --id 41
 ```
 This will use the layout and style from the template, and populate the speaker, talk, and sponsor fields from the event with ID 41 in `_data/events.yml`.
 
 If `--id` is not provided, the text fields from the template will be used.
+
+You can find the output images in the `artifacts/` directory after running the command.
 
 ## Data Files
 - **Template:** `assets/templates/template.json` (controls layout, fonts, colors, and default text)
