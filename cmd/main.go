@@ -128,7 +128,7 @@ func checkTemplatesDirectory() {
 }
 
 // setupOutputPath creates artifacts directory and determines final output path
-func setupOutputPath(outputPath string) (string, error) {
+func setupOutputPath(outputPath string, eventID string) (string, error) {
 	artifactsDir := "artifacts"
 	if _, err := os.Stat(artifactsDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(artifactsDir, 0755); err != nil {
@@ -138,7 +138,7 @@ func setupOutputPath(outputPath string) (string, error) {
 
 	finalOutputPath := outputPath
 	if finalOutputPath == "" {
-		finalOutputPath = artifactsDir + "/output.jpg"
+		finalOutputPath = artifactsDir + "/" + eventID + ".jpg"
 	} else if !strings.Contains(finalOutputPath, "/") && !strings.HasPrefix(finalOutputPath, ".") {
 		// If only a filename is given, save it in artifacts/
 		finalOutputPath = artifactsDir + "/" + finalOutputPath
@@ -274,7 +274,13 @@ func applyEventDataToTemplate(template *types.Template, eventData *types.EventDa
 		template.Sponsor.Text = eventData.Sponsor
 	}
 	if eventData.Date != "" {
-		template.Date.Text = eventData.Date
+		// Format eventData.Date into "23rd May 2024"
+		parsedDate, err := utils.ParseEventDate(eventData.Date)
+		if err == nil {
+			template.Date.Text = "Cloud Native Linz Meetup: " + parsedDate
+		} else {
+			template.Date.Text = eventData.Date // fallback to raw if parsing fails
+		}
 	}
 }
 
@@ -289,7 +295,7 @@ func main() {
 	flag.Parse()
 
 	// Setup output path and artifacts directory
-	finalOutputPath, err := setupOutputPath(*outputPath)
+	finalOutputPath, err := setupOutputPath(*outputPath, *eventID)
 	if err != nil {
 		log.Fatalf("Error setting up output path: %v", err)
 	}

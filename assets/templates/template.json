@@ -70,10 +70,10 @@
     "fontSize": 68,
     "color": "#ffffff",
     "position": {
-      "x": 0.45,
+      "x": 0.20,
       "y": 0.15
     },
-    "boxWidth": 0.20,
+    "boxWidth": 0.80,
     "text": ""
   }
 }
