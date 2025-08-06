@@ -97,7 +97,20 @@ func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Im
 	return nil
 }
 
-// scaleImageToFitCircular scales an image to fit within the given bounds and applies circular cropping
+// scaleImageToFitCircular scales the source image to fit within the specified rectangular bounds,
+// then applies a circular crop and draws the result onto the destination image.
+//
+// Parameters:
+//   dst    - The destination RGBA image onto which the circularly cropped image will be drawn.
+//   src    - The source image to be scaled and cropped.
+//   bounds - The rectangle within dst where the circular image should be placed. The circle is inscribed in these bounds.
+//
+// Algorithm:
+//   1. Calculates the scale factor needed to ensure the source image fully covers the circular area defined by bounds,
+//      using the larger of the X and Y scale ratios to avoid empty corners.
+//   2. Scales the source image to the calculated size and centers it within the bounds.
+//   3. Applies a circular mask to the scaled image, cropping it to a circle inscribed in bounds.
+//   4. Draws the circularly cropped image onto the destination image at the specified bounds.
 func (ir *ImageRenderer) scaleImageToFitCircular(dst *image.RGBA, src image.Image, bounds image.Rectangle) {
 	// First, let's use the old scaling method to make sure the image gets properly scaled
 	tempImg := image.NewRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
