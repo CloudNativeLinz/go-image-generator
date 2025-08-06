@@ -28,3 +28,4 @@ coverage.out
 
 # Ignore output image files
 artifacts/
+go-image-generator

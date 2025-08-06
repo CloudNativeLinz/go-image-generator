@@ -1,11 +1,13 @@
 package renderer
 
 import (
+	"fmt"
 	"image"
 	"image/draw"
 	"image/jpeg"
 	"image/png"
 	"math"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -173,6 +175,54 @@ func (ir *ImageRenderer) drawCircularImage(dst *image.RGBA, src *image.RGBA, bou
 
 // loadImage is a utility function to load an image from a file.
 func loadImage(path string) (image.Image, error) {
+	// Check if path is a URL
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		return loadImageFromURL(path)
+	}
+
+	// Handle local file
+	return loadImageFromFile(path)
+}
+
+func loadImageFromURL(url string) (image.Image, error) {
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to download image from %s: %w", url, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to download image from %s: HTTP %d", url, resp.StatusCode)
+	}
+
+	// Determine image format from Content-Type header or URL extension
+	contentType := resp.Header.Get("Content-Type")
+	switch contentType {
+	case "image/png":
+		return png.Decode(resp.Body)
+	case "image/jpeg", "image/jpg":
+		return jpeg.Decode(resp.Body)
+	default:
+		// Fallback: try to determine from URL extension
+		ext := strings.ToLower(filepath.Ext(url))
+		// Remove query parameters from extension check
+		if idx := strings.Index(ext, "?"); idx != -1 {
+			ext = ext[:idx]
+		}
+
+		switch ext {
+		case ".png":
+			return png.Decode(resp.Body)
+		case ".jpg", ".jpeg":
+			return jpeg.Decode(resp.Body)
+		default:
+			// Default to JPEG decoder as most social media images are JPEG
+			return jpeg.Decode(resp.Body)
+		}
+	}
+}
+
+func loadImageFromFile(path string) (image.Image, error) {
 	file, err := os.Open(path)
 	if err != nil {
 		return nil, err
