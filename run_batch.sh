@@ -49,7 +49,7 @@ done
 echo "Batch processing completed!"
 echo "Successful: $SUCCESS_COUNT"
 echo "Failed: $FAIL_COUNT"
-echo "Total: $MAX_ID"
+echo "Total: $((MAX_ID - MIN_ID + 1))"
 
 # Exit with error code if any runs failed
 if [ $FAIL_COUNT -gt 0 ]; then
