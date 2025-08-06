@@ -4,6 +4,7 @@ package types
 type Talk struct {
 	Title   string `yaml:"title"`
 	Speaker string `yaml:"speaker"`
+	Image   string `yaml:"image"`
 }
 
 // Event represents an event with talks, host, and date
@@ -22,8 +23,10 @@ type EventsYAML []Event
 type EventData struct {
 	Speaker1Title string
 	Speaker1Name  string
+	Speaker1Image string
 	Speaker2Title string
 	Speaker2Name  string
+	Speaker2Image string
 	Sponsor       string
 	Date          string
 }

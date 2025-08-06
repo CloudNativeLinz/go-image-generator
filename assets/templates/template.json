@@ -1,6 +1,6 @@
 {
   "background": {
-    "image": "assets/backgrounds/test.jpg",
+    "image": "assets/backgrounds/meetup-background.jpg",
     "position": {
       "x": 0,
       "y": 0
@@ -30,7 +30,7 @@
       "y": 0.50
     },
     "boxWidth": 0.20,
-    "text": "Simon Gartner"
+    "text": "TBD"
   },
   "speaker2title": {
     "font": "assets/fonts/LBRITE.TTF",
@@ -52,7 +52,7 @@
       "y": 0.65
     },
     "boxWidth": 0.20,
-    "text": "Markus Gierlinger"
+    "text": "TBD"
   },
   "sponsor": {
     "font": "assets/fonts/LBRITE.TTF",

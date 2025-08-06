@@ -582,5 +582,18 @@
     - title: "Adversary Emulation for Kubernetes Environments"
       speaker: "Markus Gierlinger"
 
-
+- id: 42
+  title: "My awesome test event"
+  date: "2025-10-24"
+  host: "Not a typical company"
+  event_link: "https://www.meetup.com/cloud-native-linz/events/307975704/"
+  registrations: ""
+  participants: ""
+  talks:
+    - title: "OpenRewrite in a Nutshell: Scaling Upgrades with Practical Insights"
+      speaker: "Juliano Costa"
+      image: "/assets/speaker-images/juliano-costa.jpg"
+    - title: "Adversary Emulation for Kubernetes Environments"
+      speaker: "Jürgen Etzlstorfer"
+      image: "/assets/speaker-images/jetzlstorfer.jpg"
 

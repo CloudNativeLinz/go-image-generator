@@ -181,10 +181,12 @@ func loadEventData(eventID string) (*types.EventData, error) {
 			if len(event.Talks) > 0 {
 				eventData.Speaker1Title = event.Talks[0].Title
 				eventData.Speaker1Name = event.Talks[0].Speaker
+				eventData.Speaker1Image = event.Talks[0].Image
 			}
 			if len(event.Talks) > 1 {
 				eventData.Speaker2Title = event.Talks[1].Title
 				eventData.Speaker2Name = event.Talks[1].Speaker
+				eventData.Speaker2Image = event.Talks[1].Image
 			}
 			if event.Host != "" {
 				eventData.Sponsor = event.Host
@@ -284,6 +286,24 @@ func applyEventDataToTemplate(template *types.Template, eventData *types.EventDa
 	}
 }
 
+// addSpeakerImages adds speaker images as overlays to the final image
+func addSpeakerImages(rgbaFinalImage *image.RGBA, eventData *types.EventData) error {
+	imgRenderer := renderer.ImageRenderer{}
+
+	// Clean up the image paths (remove leading slash if present)
+	speaker1Image := eventData.Speaker1Image
+	speaker2Image := eventData.Speaker2Image
+
+	if speaker1Image != "" && strings.HasPrefix(speaker1Image, "/") {
+		speaker1Image = strings.TrimPrefix(speaker1Image, "/")
+	}
+	if speaker2Image != "" && strings.HasPrefix(speaker2Image, "/") {
+		speaker2Image = strings.TrimPrefix(speaker2Image, "/")
+	}
+
+	return imgRenderer.OverlaySpeakerImages(rgbaFinalImage, speaker1Image, speaker2Image)
+}
+
 func main() {
 	// Define command-line arguments
 	backgroundPath := flag.String("background", "", "Path to the background image")
@@ -326,6 +346,13 @@ func main() {
 	// Render text using template if provided
 	if err := renderTextFromTemplate(*templatePath, eventData, rgbaFinalImage); err != nil {
 		log.Fatalf("Error rendering text: %v", err)
+	}
+
+	// Add speaker images if available
+	if eventData != nil {
+		if err := addSpeakerImages(rgbaFinalImage, eventData); err != nil {
+			log.Printf("Warning: Error adding speaker images: %v", err)
+		}
 	}
 
 	// Save final image
