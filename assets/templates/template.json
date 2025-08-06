@@ -32,6 +32,13 @@
     "boxWidth": 0.20,
     "text": "TBD"
   },
+  "speaker1image": {
+    "position": {
+      "x": 0.245,
+      "y": 0.455
+    },
+    "size": 310
+  },
   "speaker2title": {
     "font": "assets/fonts/LBRITE.TTF",
     "fontSize": 40,
@@ -53,6 +60,13 @@
     },
     "boxWidth": 0.20,
     "text": "TBD"
+  },
+  "speaker2image": {
+    "position": {
+      "x": 0.655,
+      "y": 0.57
+    },
+    "size": 310
   },
   "sponsor": {
     "font": "assets/fonts/LBRITE.TTF",

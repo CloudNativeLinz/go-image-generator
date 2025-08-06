@@ -23,14 +23,9 @@ import (
 )
 
 // renderTextFromTemplate renders all text elements from a template onto the image
-func renderTextFromTemplate(templatePath string, eventData *types.EventData, rgbaFinalImage *image.RGBA) error {
-	if templatePath == "" {
+func renderTextFromTemplate(templatePath string, eventData *types.EventData, rgbaFinalImage *image.RGBA, template *types.Template) error {
+	if templatePath == "" || template == nil {
 		return nil // No template provided, skip text rendering
-	}
-
-	template, err := loadTemplate(templatePath)
-	if err != nil {
-		return fmt.Errorf("error loading template for rendering: %w", err)
 	}
 
 	// Apply event data to template if available
@@ -287,7 +282,7 @@ func applyEventDataToTemplate(template *types.Template, eventData *types.EventDa
 }
 
 // addSpeakerImages adds speaker images as overlays to the final image
-func addSpeakerImages(rgbaFinalImage *image.RGBA, eventData *types.EventData) error {
+func addSpeakerImages(rgbaFinalImage *image.RGBA, eventData *types.EventData, template *types.Template) error {
 	imgRenderer := renderer.ImageRenderer{}
 
 	// Clean up the image paths (remove leading slash if present)
@@ -301,7 +296,7 @@ func addSpeakerImages(rgbaFinalImage *image.RGBA, eventData *types.EventData) er
 		speaker2Image = strings.TrimPrefix(speaker2Image, "/")
 	}
 
-	return imgRenderer.OverlaySpeakerImages(rgbaFinalImage, speaker1Image, speaker2Image)
+	return imgRenderer.OverlaySpeakerImages(rgbaFinalImage, speaker1Image, speaker2Image, template)
 }
 
 func main() {
@@ -343,14 +338,24 @@ func main() {
 		}
 	}
 
+	// Load template if provided
+	var template *types.Template
+	if *templatePath != "" {
+		tmpl, err := loadTemplate(*templatePath)
+		if err != nil {
+			log.Fatalf("Error loading template: %v", err)
+		}
+		template = tmpl
+	}
+
 	// Render text using template if provided
-	if err := renderTextFromTemplate(*templatePath, eventData, rgbaFinalImage); err != nil {
+	if err := renderTextFromTemplate(*templatePath, eventData, rgbaFinalImage, template); err != nil {
 		log.Fatalf("Error rendering text: %v", err)
 	}
 
 	// Add speaker images if available
-	if eventData != nil {
-		if err := addSpeakerImages(rgbaFinalImage, eventData); err != nil {
+	if eventData != nil && template != nil {
+		if err := addSpeakerImages(rgbaFinalImage, eventData, template); err != nil {
 			log.Printf("Warning: Error adding speaker images: %v", err)
 		}
 	}

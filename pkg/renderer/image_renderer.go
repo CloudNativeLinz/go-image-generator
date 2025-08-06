@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"go-image-generator/pkg/types"
+
 	xdraw "golang.org/x/image/draw"
 )
 
@@ -40,34 +42,53 @@ func (ir *ImageRenderer) OverlayImages(background image.Image, overlayPaths []st
 	return finalImage, nil
 }
 
-// OverlaySpeakerImages overlays speaker images at specific positions with circular cropping
-func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Image, speaker2Image string) error {
+// OverlaySpeakerImages overlays speaker images at template-defined positions with circular cropping
+func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Image, speaker2Image string, template *types.Template) error {
 	bounds := background.Bounds()
 	imgWidth := bounds.Dx()
 	imgHeight := bounds.Dy()
 
-	// Define speaker image size (adjust as needed)
-	speakerImageSize := 200
-
-	// Position for speaker 1 (left side)
+	// Position for speaker 1 using template configuration
 	if speaker1Image != "" {
 		speaker1, err := loadImage(speaker1Image)
 		if err != nil {
 			return err
 		}
-		// Scale and position speaker 1 image on the left
-		speaker1Bounds := image.Rect(50, imgHeight/2-speakerImageSize/2, 50+speakerImageSize, imgHeight/2+speakerImageSize/2)
+
+		// Calculate position and size from template
+		x := int(template.Speaker1image.Position.X * float64(imgWidth))
+		y := int(template.Speaker1image.Position.Y * float64(imgHeight))
+		size := template.Speaker1image.Size
+
+		// Create bounds centered on the calculated position
+		speaker1Bounds := image.Rect(
+			x-size/2,
+			y-size/2,
+			x+size/2,
+			y+size/2,
+		)
 		ir.scaleImageToFitCircular(background, speaker1, speaker1Bounds)
 	}
 
-	// Position for speaker 2 (right side)
+	// Position for speaker 2 using template configuration
 	if speaker2Image != "" {
 		speaker2, err := loadImage(speaker2Image)
 		if err != nil {
 			return err
 		}
-		// Scale and position speaker 2 image on the right
-		speaker2Bounds := image.Rect(imgWidth-250, imgHeight/2-speakerImageSize/2, imgWidth-50, imgHeight/2+speakerImageSize/2)
+
+		// Calculate position and size from template
+		x := int(template.Speaker2image.Position.X * float64(imgWidth))
+		y := int(template.Speaker2image.Position.Y * float64(imgHeight))
+		size := template.Speaker2image.Size
+
+		// Create bounds centered on the calculated position
+		speaker2Bounds := image.Rect(
+			x-size/2,
+			y-size/2,
+			x+size/2,
+			y+size/2,
+		)
 		ir.scaleImageToFitCircular(background, speaker2, speaker2Bounds)
 	}
 

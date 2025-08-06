@@ -16,6 +16,12 @@ type TextElement struct {
 	BoxWidth float64  `json:"boxWidth"`
 }
 
+// ImageElement represents an image element with position and size
+type ImageElement struct {
+	Position Position `json:"position"`
+	Size     int      `json:"size"`
+}
+
 // BackgroundConfig represents background image configuration
 type BackgroundConfig struct {
 	Image    string `json:"image"`
@@ -34,8 +40,10 @@ type Template struct {
 	Background    BackgroundConfig `json:"background"`
 	Speaker1title TextElement      `json:"speaker1title"`
 	Speaker1name  TextElement      `json:"speaker1name"`
+	Speaker1image ImageElement     `json:"speaker1image"`
 	Speaker2title TextElement      `json:"speaker2title"`
 	Speaker2name  TextElement      `json:"speaker2name"`
+	Speaker2image ImageElement     `json:"speaker2image"`
 	Sponsor       TextElement      `json:"sponsor"`
 	Date          TextElement      `json:"date"`
 }
