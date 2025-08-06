@@ -44,10 +44,10 @@
     "fontSize": 40,
     "color": "#000000",
     "position": {
-      "x": 0.73,
-      "y": 0.65
+      "x": 0.733,
+      "y": 0.64
     },
-    "boxWidth": 0.20,
+    "boxWidth": 0.215,
     "text": "Second talk title - TBD"
   },
   "speaker2name": {
