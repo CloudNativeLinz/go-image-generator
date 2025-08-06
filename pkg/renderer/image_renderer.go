@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"go-image-generator/pkg/types"
 
@@ -101,16 +102,17 @@ func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Im
 // then applies a circular crop and draws the result onto the destination image.
 //
 // Parameters:
-//   dst    - The destination RGBA image onto which the circularly cropped image will be drawn.
-//   src    - The source image to be scaled and cropped.
-//   bounds - The rectangle within dst where the circular image should be placed. The circle is inscribed in these bounds.
+//
+//	dst    - The destination RGBA image onto which the circularly cropped image will be drawn.
+//	src    - The source image to be scaled and cropped.
+//	bounds - The rectangle within dst where the circular image should be placed. The circle is inscribed in these bounds.
 //
 // Algorithm:
-//   1. Calculates the scale factor needed to ensure the source image fully covers the circular area defined by bounds,
-//      using the larger of the X and Y scale ratios to avoid empty corners.
-//   2. Scales the source image to the calculated size and centers it within the bounds.
-//   3. Applies a circular mask to the scaled image, cropping it to a circle inscribed in bounds.
-//   4. Draws the circularly cropped image onto the destination image at the specified bounds.
+//  1. Calculates the scale factor needed to ensure the source image fully covers the circular area defined by bounds,
+//     using the larger of the X and Y scale ratios to avoid empty corners.
+//  2. Scales the source image to the calculated size and centers it within the bounds.
+//  3. Applies a circular mask to the scaled image, cropping it to a circle inscribed in bounds.
+//  4. Draws the circularly cropped image onto the destination image at the specified bounds.
 func (ir *ImageRenderer) scaleImageToFitCircular(dst *image.RGBA, src image.Image, bounds image.Rectangle) {
 	// First, let's use the old scaling method to make sure the image gets properly scaled
 	tempImg := image.NewRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
@@ -155,15 +157,16 @@ func (ir *ImageRenderer) scaleImageToFitCircular(dst *image.RGBA, src image.Imag
 }
 
 // drawCircularImage copies pixels from src to dst within the specified bounds, applying circular cropping.
-// 
+//
 // The function iterates over each pixel in the given bounds and calculates its distance from the center.
 // Only pixels within the circle (with radius equal to half the smaller dimension of bounds) are copied from src to dst.
 // Pixels outside the circle are ignored, resulting in a circularly cropped image region.
 //
 // Parameters:
-//   dst    - The destination RGBA image where the circularly cropped region will be drawn.
-//   src    - The source RGBA image to crop and copy pixels from.
-//   bounds - The rectangle specifying the region in dst to draw the circular crop. The circle is centered in this rectangle.
+//
+//	dst    - The destination RGBA image where the circularly cropped region will be drawn.
+//	src    - The source RGBA image to crop and copy pixels from.
+//	bounds - The rectangle specifying the region in dst to draw the circular crop. The circle is centered in this rectangle.
 func (ir *ImageRenderer) drawCircularImage(dst *image.RGBA, src *image.RGBA, bounds image.Rectangle) {
 	centerX := bounds.Dx() / 2
 	centerY := bounds.Dy() / 2
@@ -207,7 +210,10 @@ func loadImage(path string) (image.Image, error) {
 }
 
 func loadImageFromURL(url string) (image.Image, error) {
-	resp, err := http.Get(url)
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+	}
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to download image from %s: %w", url, err)
 	}
