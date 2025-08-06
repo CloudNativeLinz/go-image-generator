@@ -154,7 +154,16 @@ func (ir *ImageRenderer) scaleImageToFitCircular(dst *image.RGBA, src image.Imag
 	ir.drawCircularImage(dst, tempImg, bounds)
 }
 
-// drawCircularImage draws an image with circular cropping
+// drawCircularImage copies pixels from src to dst within the specified bounds, applying circular cropping.
+// 
+// The function iterates over each pixel in the given bounds and calculates its distance from the center.
+// Only pixels within the circle (with radius equal to half the smaller dimension of bounds) are copied from src to dst.
+// Pixels outside the circle are ignored, resulting in a circularly cropped image region.
+//
+// Parameters:
+//   dst    - The destination RGBA image where the circularly cropped region will be drawn.
+//   src    - The source RGBA image to crop and copy pixels from.
+//   bounds - The rectangle specifying the region in dst to draw the circular crop. The circle is centered in this rectangle.
 func (ir *ImageRenderer) drawCircularImage(dst *image.RGBA, src *image.RGBA, bounds image.Rectangle) {
 	centerX := bounds.Dx() / 2
 	centerY := bounds.Dy() / 2
