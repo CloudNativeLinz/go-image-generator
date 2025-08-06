@@ -5,6 +5,7 @@ import (
 	"image/draw"
 	"image/jpeg"
 	"image/png"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
@@ -39,7 +40,7 @@ func (ir *ImageRenderer) OverlayImages(background image.Image, overlayPaths []st
 	return finalImage, nil
 }
 
-// OverlaySpeakerImages overlays speaker images at specific positions
+// OverlaySpeakerImages overlays speaker images at specific positions with circular cropping
 func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Image, speaker2Image string) error {
 	bounds := background.Bounds()
 	imgWidth := bounds.Dx()
@@ -56,7 +57,7 @@ func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Im
 		}
 		// Scale and position speaker 1 image on the left
 		speaker1Bounds := image.Rect(50, imgHeight/2-speakerImageSize/2, 50+speakerImageSize, imgHeight/2+speakerImageSize/2)
-		ir.scaleImageToFit(background, speaker1, speaker1Bounds)
+		ir.scaleImageToFitCircular(background, speaker1, speaker1Bounds)
 	}
 
 	// Position for speaker 2 (right side)
@@ -67,14 +68,18 @@ func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Im
 		}
 		// Scale and position speaker 2 image on the right
 		speaker2Bounds := image.Rect(imgWidth-250, imgHeight/2-speakerImageSize/2, imgWidth-50, imgHeight/2+speakerImageSize/2)
-		ir.scaleImageToFit(background, speaker2, speaker2Bounds)
+		ir.scaleImageToFitCircular(background, speaker2, speaker2Bounds)
 	}
 
 	return nil
 }
 
-// scaleImageToFit scales an image to fit within the given bounds while maintaining aspect ratio
-func (ir *ImageRenderer) scaleImageToFit(dst *image.RGBA, src image.Image, bounds image.Rectangle) {
+// scaleImageToFitCircular scales an image to fit within the given bounds and applies circular cropping
+func (ir *ImageRenderer) scaleImageToFitCircular(dst *image.RGBA, src image.Image, bounds image.Rectangle) {
+	// First, let's use the old scaling method to make sure the image gets properly scaled
+	tempImg := image.NewRGBA(image.Rect(0, 0, bounds.Dx(), bounds.Dy()))
+
+	// Use the working scaling logic from scaleImageToFit
 	srcBounds := src.Bounds()
 	srcWidth := float64(srcBounds.Dx())
 	srcHeight := float64(srcBounds.Dy())
@@ -82,12 +87,12 @@ func (ir *ImageRenderer) scaleImageToFit(dst *image.RGBA, src image.Image, bound
 	dstWidth := float64(bounds.Dx())
 	dstHeight := float64(bounds.Dy())
 
-	// Calculate scale factor to fit the image within bounds while maintaining aspect ratio
+	// Calculate scale factor to fill the entire circle (use larger scale to avoid empty corners)
 	scaleX := dstWidth / srcWidth
 	scaleY := dstHeight / srcHeight
 	scale := scaleX
-	if scaleY < scaleX {
-		scale = scaleY
+	if scaleY > scaleX {
+		scale = scaleY // Use larger scale to fill the circle completely
 	}
 
 	// Calculate the actual size after scaling
@@ -100,14 +105,49 @@ func (ir *ImageRenderer) scaleImageToFit(dst *image.RGBA, src image.Image, bound
 
 	// Create the target rectangle for the scaled image
 	targetBounds := image.Rect(
-		bounds.Min.X+offsetX,
-		bounds.Min.Y+offsetY,
-		bounds.Min.X+offsetX+scaledWidth,
-		bounds.Min.Y+offsetY+scaledHeight,
+		offsetX,
+		offsetY,
+		offsetX+scaledWidth,
+		offsetY+scaledHeight,
 	)
 
-	// Use BiLinear scaling for better quality
-	xdraw.BiLinear.Scale(dst, targetBounds, src, srcBounds, draw.Over, nil)
+	// Scale the image to the temporary image
+	xdraw.BiLinear.Scale(tempImg, targetBounds, src, srcBounds, draw.Over, nil)
+
+	// Now apply circular mask and draw to destination
+	ir.drawCircularImage(dst, tempImg, bounds)
+}
+
+// drawCircularImage draws an image with circular cropping
+func (ir *ImageRenderer) drawCircularImage(dst *image.RGBA, src *image.RGBA, bounds image.Rectangle) {
+	centerX := bounds.Dx() / 2
+	centerY := bounds.Dy() / 2
+	radius := float64(bounds.Dx()) / 2
+	if bounds.Dy() < bounds.Dx() {
+		radius = float64(bounds.Dy()) / 2
+	}
+
+	// Iterate through each pixel in the bounds
+	for y := 0; y < bounds.Dy(); y++ {
+		for x := 0; x < bounds.Dx(); x++ {
+			// Calculate distance from center
+			dx := float64(x - centerX)
+			dy := float64(y - centerY)
+			distance := math.Sqrt(dx*dx + dy*dy)
+
+			// Only draw pixels within the circle
+			if distance <= radius {
+				srcColor := src.RGBAAt(x, y)
+				dstX := bounds.Min.X + x
+				dstY := bounds.Min.Y + y
+
+				// Blend the source color with the destination
+				if srcColor.A > 0 {
+					dst.SetRGBA(dstX, dstY, srcColor)
+				}
+			}
+		}
+	}
 }
 
 // loadImage is a utility function to load an image from a file.
