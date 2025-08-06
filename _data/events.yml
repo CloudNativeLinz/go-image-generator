@@ -121,7 +121,7 @@
   registrations: 15
   participants: ""
   talks:
-    - title: "9. CNCLinz - Charles Pretzer - Service Mesh Principles: Observability through Telemetry with Linkerd"
+    - title: "Service Mesh Principles: Observability through Telemetry with Linkerd"
       speaker: "Charles Pretzer"
       recording: "https://www.youtube.com/watch?v=XeXcgz5stMo"
 
@@ -579,8 +579,10 @@
   talks:
     - title: "OpenRewrite in a Nutshell: Scaling Upgrades with Practical Insights"
       speaker: "Simon Gartner"
+      image: "https://media.licdn.com/dms/image/v2/D4E03AQFLarBafQv63A/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1687567134073?e=1757548800&v=beta&t=X0jnYeGJQgk40wOkA9gKl4C7MVRpeiv3fRG26MX29G0"
     - title: "Adversary Emulation for Kubernetes Environments"
       speaker: "Markus Gierlinger"
+      image: "https://media.licdn.com/dms/image/v2/C4D03AQEAzyUotk44Ug/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1611606832681?e=1757548800&v=beta&t=RAMEEcvpeyoP4n4g19GEIzzOlXHCWvl9YJnqTmL1S2c"
 
 - id: 42
   title: "My awesome test event"
@@ -594,6 +596,6 @@
       speaker: "Juliano Costa"
       image: "/assets/speaker-images/juliano-costa.jpg"
     - title: "Adversary Emulation for Kubernetes Environments"
-      speaker: "Jürgen Etzlstorfer"
-      image: "https://media.licdn.com/dms/image/v2/D4D03AQGPAfTvKW-EKA/profile-displayphoto-shrink_800_800/B4DZbIrskdG8Ac-/0/1747123620644?e=1757548800&v=beta&t=TU1WBjTYHjLIsfROoM7JKw5nf1sYSN9PIq5_5ZGgrQQ"
+      speaker: "Kathi Sick"
+      image: "https://media.licdn.com/dms/image/v2/D4D03AQHts0BHHyZCmw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1694361905742?e=1757548800&v=beta&t=W7hKRUYxXX_deDVIzSXhpOE11EBaZT79HKdM-c0vROA"
 

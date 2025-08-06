@@ -29,4 +29,6 @@ type EventData struct {
 	Speaker2Image string
 	Sponsor       string
 	Date          string
+	Title         string
+	EventTitle    string
 }

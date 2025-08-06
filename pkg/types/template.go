@@ -46,4 +46,5 @@ type Template struct {
 	Speaker2image ImageElement     `json:"speaker2image"`
 	Sponsor       TextElement      `json:"sponsor"`
 	Date          TextElement      `json:"date"`
+	Title         TextElement      `json:"title"`
 }

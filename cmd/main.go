@@ -55,6 +55,10 @@ func renderTextFromTemplate(templatePath string, eventData *types.EventData, rgb
 		log.Printf("Error rendering date: %v", err)
 	}
 
+	if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Title, imgWidth, imgHeight, lineSpacing); err != nil {
+		log.Printf("Error rendering title: %v", err)
+	}
+
 	return nil
 }
 
@@ -189,6 +193,9 @@ func loadEventData(eventID string) (*types.EventData, error) {
 			if event.Date != "" {
 				eventData.Date = event.Date
 			}
+			if event.Title != "" {
+				eventData.EventTitle = event.Title
+			}
 
 			return eventData, nil
 		}
@@ -274,10 +281,13 @@ func applyEventDataToTemplate(template *types.Template, eventData *types.EventDa
 		// Format eventData.Date into "23rd May 2024"
 		parsedDate, err := utils.ParseEventDate(eventData.Date)
 		if err == nil {
-			template.Date.Text = "Cloud Native Linz Meetup: " + parsedDate
+			template.Date.Text = parsedDate
 		} else {
 			template.Date.Text = eventData.Date // fallback to raw if parsing fails
 		}
+	}
+	if eventData.EventTitle != "" {
+		template.Title.Text = eventData.EventTitle
 	}
 }
 
