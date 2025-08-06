@@ -23,14 +23,9 @@ import (
 )
 
 // renderTextFromTemplate renders all text elements from a template onto the image
-func renderTextFromTemplate(templatePath string, eventData *types.EventData, rgbaFinalImage *image.RGBA) error {
-	if templatePath == "" {
+func renderTextFromTemplate(templatePath string, eventData *types.EventData, rgbaFinalImage *image.RGBA, template *types.Template) error {
+	if templatePath == "" || template == nil {
 		return nil // No template provided, skip text rendering
-	}
-
-	template, err := loadTemplate(templatePath)
-	if err != nil {
-		return fmt.Errorf("error loading template for rendering: %w", err)
 	}
 
 	// Apply event data to template if available
@@ -58,6 +53,10 @@ func renderTextFromTemplate(templatePath string, eventData *types.EventData, rgb
 
 	if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Date, imgWidth, imgHeight, lineSpacing); err != nil {
 		log.Printf("Error rendering date: %v", err)
+	}
+
+	if err := renderTextElement(&textRenderer, rgbaFinalImage, template.Title, imgWidth, imgHeight, lineSpacing); err != nil {
+		log.Printf("Error rendering title: %v", err)
 	}
 
 	return nil
@@ -181,16 +180,21 @@ func loadEventData(eventID string) (*types.EventData, error) {
 			if len(event.Talks) > 0 {
 				eventData.Speaker1Title = event.Talks[0].Title
 				eventData.Speaker1Name = event.Talks[0].Speaker
+				eventData.Speaker1Image = event.Talks[0].Image
 			}
 			if len(event.Talks) > 1 {
 				eventData.Speaker2Title = event.Talks[1].Title
 				eventData.Speaker2Name = event.Talks[1].Speaker
+				eventData.Speaker2Image = event.Talks[1].Image
 			}
 			if event.Host != "" {
 				eventData.Sponsor = event.Host
 			}
 			if event.Date != "" {
 				eventData.Date = event.Date
+			}
+			if event.Title != "" {
+				eventData.EventTitle = event.Title
 			}
 
 			return eventData, nil
@@ -277,11 +281,32 @@ func applyEventDataToTemplate(template *types.Template, eventData *types.EventDa
 		// Format eventData.Date into "23rd May 2024"
 		parsedDate, err := utils.ParseEventDate(eventData.Date)
 		if err == nil {
-			template.Date.Text = "Cloud Native Linz Meetup: " + parsedDate
+			template.Date.Text = parsedDate
 		} else {
 			template.Date.Text = eventData.Date // fallback to raw if parsing fails
 		}
 	}
+	if eventData.EventTitle != "" {
+		template.Title.Text = eventData.EventTitle
+	}
+}
+
+// addSpeakerImages adds speaker images as overlays to the final image
+func addSpeakerImages(rgbaFinalImage *image.RGBA, eventData *types.EventData, template *types.Template) error {
+	imgRenderer := renderer.ImageRenderer{}
+
+	// Clean up the image paths (remove leading slash if present)
+	speaker1Image := eventData.Speaker1Image
+	speaker2Image := eventData.Speaker2Image
+
+	if speaker1Image != "" && strings.HasPrefix(speaker1Image, "/") {
+		speaker1Image = strings.TrimPrefix(speaker1Image, "/")
+	}
+	if speaker2Image != "" && strings.HasPrefix(speaker2Image, "/") {
+		speaker2Image = strings.TrimPrefix(speaker2Image, "/")
+	}
+
+	return imgRenderer.OverlaySpeakerImages(rgbaFinalImage, speaker1Image, speaker2Image, template)
 }
 
 func main() {
@@ -323,9 +348,26 @@ func main() {
 		}
 	}
 
+	// Load template if provided
+	var template *types.Template
+	if *templatePath != "" {
+		tmpl, err := loadTemplate(*templatePath)
+		if err != nil {
+			log.Fatalf("Error loading template: %v", err)
+		}
+		template = tmpl
+	}
+
 	// Render text using template if provided
-	if err := renderTextFromTemplate(*templatePath, eventData, rgbaFinalImage); err != nil {
+	if err := renderTextFromTemplate(*templatePath, eventData, rgbaFinalImage, template); err != nil {
 		log.Fatalf("Error rendering text: %v", err)
+	}
+
+	// Add speaker images if available
+	if eventData != nil && template != nil {
+		if err := addSpeakerImages(rgbaFinalImage, eventData, template); err != nil {
+			log.Printf("Warning: Error adding speaker images: %v", err)
+		}
 	}
 
 	// Save final image

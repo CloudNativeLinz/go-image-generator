@@ -51,8 +51,8 @@ func ParseEventDate(dateStr string) (string, error) {
 	// Get the ordinal suffix for the day
 	suffix := getDayOrdinalSuffix(day)
 
-	// Format as "23rd May 2024"
-	return fmt.Sprintf("%d%s %s %d", day, suffix, month, year), nil
+	// Format as "Mon, 23rd May 2024"
+	return fmt.Sprintf("%s, %d%s %s %d", parsedTime.Format("Mon"), day, suffix, month, year), nil
 }
 
 // getDayOrdinalSuffix returns the ordinal suffix for a given day (1st, 2nd, 3rd, 4th, etc.)

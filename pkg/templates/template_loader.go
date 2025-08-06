@@ -1,7 +1,7 @@
 package templates
 
 import (
-	"io/ioutil"
+	"os"
 	"path/filepath"
 )
 
@@ -9,7 +9,7 @@ import (
 func LoadTemplates(templateDir string) ([]string, error) {
 	var templates []string
 
-	files, err := ioutil.ReadDir(templateDir)
+	files, err := os.ReadDir(templateDir)
 	if err != nil {
 		return nil, err
 	}

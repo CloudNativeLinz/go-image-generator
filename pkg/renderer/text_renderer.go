@@ -5,7 +5,6 @@ import (
 	"image"
 	"image/color"
 	"image/jpeg"
-	"io/ioutil"
 	"os"
 
 	"golang.org/x/image/font"
@@ -19,7 +18,7 @@ func (tr *TextRenderer) RenderText(img *image.RGBA, text string, fontPath string
 	col := color.RGBA{255, 255, 255, 255} // White color for text
 
 	// Load the font file
-	fontBytes, err := ioutil.ReadFile(fontPath)
+	fontBytes, err := os.ReadFile(fontPath)
 	if err != nil {
 		return err
 	}
@@ -71,7 +70,7 @@ func (tr *TextRenderer) RenderTextWithPosition(img *image.RGBA, text string, fon
 	col := color.RGBA{255, 255, 255, 255} // White color for text
 
 	// Load the font file
-	fontBytes, err := ioutil.ReadFile(fontPath)
+	fontBytes, err := os.ReadFile(fontPath)
 	if err != nil {
 		return fmt.Errorf("failed to load font file: %w", err)
 	}
@@ -121,7 +120,7 @@ func parseHexColor(s string) color.Color {
 func (tr *TextRenderer) RenderTextWithPositionAndColor(img *image.RGBA, text string, fontPath string, fontSize float64, colStr string, x int, y int) error {
 	col := parseHexColor(colStr)
 	// ...existing code for loading font and face...
-	fontBytes, err := ioutil.ReadFile(fontPath)
+	fontBytes, err := os.ReadFile(fontPath)
 	if err != nil {
 		return fmt.Errorf("failed to load font file: %w", err)
 	}

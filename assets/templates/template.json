@@ -1,6 +1,6 @@
 {
   "background": {
-    "image": "assets/backgrounds/test.jpg",
+    "image": "assets/backgrounds/meetup-background.jpg",
     "position": {
       "x": 0,
       "y": 0
@@ -19,7 +19,7 @@
       "y": 0.50
     },
     "boxWidth": 0.20,
-    "text": "OpenRewrite in a Nutshell: Scaling Upgrades with Practical Insights"
+    "text": "First talk title - TBD"
   },
   "speaker1name": {
     "font": "assets/fonts/LBRITED.TTF",
@@ -30,7 +30,14 @@
       "y": 0.50
     },
     "boxWidth": 0.20,
-    "text": "Simon Gartner"
+    "text": "TBD"
+  },
+  "speaker1image": {
+    "position": {
+      "x": 0.245,
+      "y": 0.455
+    },
+    "size": 310
   },
   "speaker2title": {
     "font": "assets/fonts/LBRITE.TTF",
@@ -41,7 +48,7 @@
       "y": 0.65
     },
     "boxWidth": 0.20,
-    "text": "Adversary Emulation for Kubernetes Environments"
+    "text": "Second talk title - TBD"
   },
   "speaker2name": {
     "font": "assets/fonts/LBRITED.TTF",
@@ -52,7 +59,14 @@
       "y": 0.65
     },
     "boxWidth": 0.20,
-    "text": "Markus Gierlinger"
+    "text": "TBD"
+  },
+  "speaker2image": {
+    "position": {
+      "x": 0.655,
+      "y": 0.57
+    },
+    "size": 310
   },
   "sponsor": {
     "font": "assets/fonts/LBRITE.TTF",
@@ -67,11 +81,22 @@
   },
   "date": {
     "font": "assets/fonts/LBRITE.TTF",
+    "fontSize": 48,
+    "color": "#ffffff",
+    "position": {
+      "x": 0.20,
+      "y": 0.10
+    },
+    "boxWidth": 0.80,
+    "text": ""
+  },
+  "title": {
+    "font": "assets/fonts/LBRITE.TTF",
     "fontSize": 68,
     "color": "#ffffff",
     "position": {
       "x": 0.20,
-      "y": 0.15
+      "y": 0.18
     },
     "boxWidth": 0.80,
     "text": ""

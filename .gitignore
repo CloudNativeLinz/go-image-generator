@@ -26,5 +26,8 @@ coverage.out
 # Ignore logs
 *.log
 
-# Ignore output image files
+# Ignore output files
 artifacts/
+go-image-generator
+main
+

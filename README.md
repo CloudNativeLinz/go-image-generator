@@ -16,24 +16,26 @@ go-image-generator
 │   └── events.yml
 ├── artifacts/                    # Generated images output directory
 ├── assets
-│   ├── backgrounds
-│   ├── fonts
-│   ├── overlays
-│   └── templates
-│       └── template.json
+│   ├── backgrounds/              # Background images
+│   ├── fonts/                    # Font files (.TTF)
+│   ├── overlays/                 # Overlay images
+│   ├── speaker-images/           # Speaker profile pictures
+│   └── templates/
+│       └── template.json         # Layout and styling configuration
 ├── cmd
-│   └── main.go
+│   └── main.go                   # Application entry point
 ├── pkg
 │   ├── renderer
-│   │   ├── image_renderer.go
-│   │   └── text_renderer.go
+│   │   ├── image_renderer.go     # Image processing and overlays
+│   │   └── text_renderer.go     # Text rendering with font support
 │   ├── templates
-│   │   └── template_loader.go
+│   │   └── template_loader.go    # Template loading utilities
 │   ├── types
-│   │   ├── events.go
-│   │   └── template.go
+│   │   ├── events.go            # Event data structures
+│   │   └── template.go          # Template configuration types
 │   └── utils
-│       └── file_utils.go
+│       └── file_utils.go        # File I/O utilities
+├── run_batch.sh                  # Batch processing script
 ├── go.mod
 └── go.sum
 ```
@@ -52,14 +54,21 @@ go-image-generator
    ```
 
 3. **Add assets:**
-   Place your background images in the `assets/backgrounds` directory, overlay images in `assets/overlays`, and font files in `assets/fonts`.
+   Place your background images in the `assets/backgrounds/` directory, overlay images in `assets/overlays/`, font files in `assets/fonts/`, and speaker profile pictures in `assets/speaker-images/`.
+
+4. **Configure template:**
+   Edit `assets/templates/template.json` to customize layout, fonts, colors, and positioning for text elements and speaker images.
 
 ## Features
 - Generate images using a JSON template for layout, fonts, and colors
 - Dynamically populate speaker, talk, and sponsor information from a YAML event file (`_data/events.yml`)
 - Select event data by event ID using the `--id` CLI flag
+- **Speaker images**: Automatically render speaker profile pictures from URLs or local files
+- **Advanced text rendering**: Support for dual speakers with title/name pairs and intelligent text wrapping
+- **Date formatting**: Automatic parsing and formatting of event dates
 - Overlay additional images and customize backgrounds
 - Flexible font and color configuration via template
+- **Batch processing**: Generate multiple images using the included batch script (`run_batch.sh`)
 
 ## Usage
 To generate an image, run the application with the necessary command-line arguments. The entry point is located in `cmd/main.go`.
@@ -71,22 +80,80 @@ To generate an image, run the application with the necessary command-line argume
 - `--background`: (Optional) Path to a background image (used only if no template is provided)
 - `--overlays`: (Optional) Comma-separated list of overlay image paths
 
-### Example Command
-```
+### Example Commands
+
+**Basic usage with event data:**
+```bash
 go run cmd/main.go --template assets/templates/template.json --id 41
 ```
-This will use the layout and style from the template, and populate the speaker, talk, and sponsor fields from the event with ID 41 in `_data/events.yml`.
+This will use the layout and style from the template, and populate the speaker, talk, and sponsor fields from the event with ID 41 in `_data/events.yml`. Speaker images will be automatically included if specified in the event data.
 
-If `--id` is not provided, the text fields from the template will be used.
+**Custom output path:**
+```bash
+go run cmd/main.go --template assets/templates/template.json --id 42 --output my-custom-image.jpg
+```
+
+**Using template without event data:**
+```bash
+go run cmd/main.go --template assets/templates/template.json
+```
+If `--id` is not provided, the text fields from the template will be used as defaults.
+
+**Batch processing multiple events:**
+```bash
+./run_batch.sh 1 50
+```
+This will generate images for events with IDs 1 through 50.
 
 You can find the output images in the `artifacts/` directory after running the command.
 
 ## Data Files
-- **Template:** `assets/templates/template.json` (controls layout, fonts, colors, and default text)
-- **Events:** `_data/events.yml` (contains event, talk, speaker, and sponsor data)
-- **Backgrounds:** `assets/backgrounds/`
-- **Overlays:** `assets/overlays/`
-- **Fonts:** `assets/fonts/`
+- **Template:** `assets/templates/template.json` (controls layout, fonts, colors, positioning, and speaker image placement)
+- **Events:** `_data/events.yml` (contains event, talk, speaker, and sponsor data with optional speaker image URLs)
+- **Backgrounds:** `assets/backgrounds/` (background images for templates)
+- **Overlays:** `assets/overlays/` (additional overlay images)
+- **Speaker Images:** `assets/speaker-images/` (local speaker profile pictures)
+- **Fonts:** `assets/fonts/` (TrueType font files for text rendering)
+
+### Event Data Format
+Events in `_data/events.yml` support the following structure:
+```yaml
+- id: 42
+  title: "My Event Title"
+  date: "2025-10-24"
+  host: "Company Name"
+  talks:
+    - title: "First Talk Title"
+      speaker: "Speaker Name"
+      image: "/assets/speaker-images/speaker1.jpg"  # Local file
+    - title: "Second Talk Title"
+      speaker: "Another Speaker"
+      image: "https://example.com/profile.jpg"      # Remote URL
+```
+
+Speaker images can be either local files (in `assets/speaker-images/`) or remote URLs.
+
+## Batch Processing
+
+The project includes a batch processing script (`run_batch.sh`) for generating multiple images efficiently:
+
+```bash
+# Generate images for events 1-10
+./run_batch.sh 1 10
+
+# Generate a single image (event ID 5)
+./run_batch.sh 5 5
+
+# Generate all events from 1 to 50
+./run_batch.sh 1 50
+```
+
+The script will:
+- Process each event ID in the specified range
+- Use the default template (`assets/templates/template.json`)
+- Output images to the `artifacts/` directory
+- Provide progress feedback and error reporting
+- Skip events that don't exist in `_data/events.yml`
 
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
