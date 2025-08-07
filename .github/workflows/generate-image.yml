@@ -7,6 +7,7 @@ on:
         description: 'Event ID to use for --id'
         required: false
         default: ''
+
   push:
     branches: [ main ]
 
@@ -28,9 +29,8 @@ jobs:
       - name: Generate image
         run: |
           go run ./cmd/main.go \
-            --background assets/backgrounds/test.jpg \
+            --background assets/backgrounds/meetup-background.jpg \
             --template assets/templates/template.json \
-            --output output.jpg \
             ${{ github.event.inputs.id && format('--id {0}', github.event.inputs.id) || '' }}
 
       - name: Upload image artifact
