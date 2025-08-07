@@ -199,6 +199,7 @@
   talks:
     - title: "How deploying feature branches opened the door to more scalability"
       speaker: "Markus Adelsberger"
+      image: "https://media.licdn.com/dms/image/v2/C4E03AQHKADs1R6XXuw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1653720929705?e=1757548800&v=beta&t=vzgx8X9dsz8AztA1wzVPkKW8yPKhK_XzWmyvGHqdR9Q"
     - title: "From Command Line to GitOps - how we transformed our infrastructure"
       speaker: "Thomas Einwaller"
 
@@ -357,6 +358,7 @@
       image: "https://media.licdn.com/dms/image/v2/C4E03AQGG0DupxggIkQ/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1625521433577?e=1757548800&v=beta&t=7gbxeHWaBbsyvCl9O7QN3JDvti3Io0xe6Z2qowucoUM"
     - title: "Migration of on-prem payment systems to a Cloud Native Environments"
       speaker: "Markus Adelsberger & Georg Mayrhauser"
+      image: "https://media.licdn.com/dms/image/v2/C4E03AQHKADs1R6XXuw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1653720929705?e=1757548800&v=beta&t=vzgx8X9dsz8AztA1wzVPkKW8yPKhK_XzWmyvGHqdR9Q"
 
 - id: 26
   title: "Testing K8s Operators & OpenTelemetry for Logs"
@@ -618,17 +620,15 @@
       image: "https://media.licdn.com/dms/image/v2/C4D03AQEAzyUotk44Ug/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1611606832681?e=1757548800&v=beta&t=RAMEEcvpeyoP4n4g19GEIzzOlXHCWvl9YJnqTmL1S2c"
 
 - id: 42
-  title: "My awesome test event"
-  date: "2025-10-24"
-  host: "Not a typical company"
+  title: "cTENcf Party - celebrating 10 years of CNCF and 5 years of Cloud Native Linz"
+  date: "2025-09-24"
+  host: "netcetera"
   event_link: "https://www.meetup.com/cloud-native-linz/events/307975704/"
   registrations: ""
   participants: ""
   talks:
-    - title: "OpenRewrite in a Nutshell: Scaling Upgrades with Practical Insights"
-      speaker: "Juliano Costa"
-      image: "/assets/speaker-images/juliano-costa.jpg"
-    - title: "Adversary Emulation for Kubernetes Environments"
-      speaker: "Katharina Sick"
-      image: "https://media.licdn.com/dms/image/v2/D4D03AQHts0BHHyZCmw/profile-displayphoto-shrink_200_200/profile-displayphoto-shrink_200_200/0/1694361905742?e=1757548800&v=beta&t=W7hKRUYxXX_deDVIzSXhpOE11EBaZT79HKdM-c0vROA"
-
+    - title: "Talk title to be announced soon"
+      speaker: "Markus Adelsberger & Georg Mayrhauser"
+      image: "https://media.licdn.com/dms/image/v2/C4E03AQHKADs1R6XXuw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1653720929705?e=1757548800&v=beta&t=vzgx8X9dsz8AztA1wzVPkKW8yPKhK_XzWmyvGHqdR9Q"
+    - title: "Open Mic - Share your Cloud Native Journey"
+      speaker: "the community"
