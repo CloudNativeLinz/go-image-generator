@@ -69,7 +69,6 @@ go-image-generator
 - **Date formatting**: Automatic parsing and formatting of event dates
 - Overlay additional images and customize backgrounds
 - Flexible font and color configuration via template
-- **Batch processing**: Generate multiple images using the included batch script (`run_batch.sh`)
 
 ## Usage
 To generate an image, run the application with the necessary command-line arguments. The entry point is located in `cmd/main.go`.
@@ -155,39 +154,16 @@ Events in `_data/events.yml` support the following structure:
       image: "https://example.com/profile.jpg"      # Remote URL
 ```
 
+
 Speaker images can be either local files (in `assets/speaker-images/`) or remote URLs.
 
 ## Batch Processing
 
-The project supports batch processing in multiple ways:
-
-### Built-in Bulk Generation
-Generate images for all events with a single command:
+You can generate images for all events with a single command:
 ```bash
 go run cmd/main.go --template assets/templates/template.json
 ```
-This will automatically process all events in `_data/events.yml` and generate corresponding images.
-
-### Batch Script for Range Processing
-The project also includes a batch processing script (`run_batch.sh`) for generating images within a specific range:
-
-```bash
-# Generate images for events 1-10
-./run_batch.sh 1 10
-
-# Generate a single image (event ID 5)
-./run_batch.sh 5 5
-
-# Generate all events from 1 to 50
-./run_batch.sh 1 50
-```
-
-The script will:
-- Process each event ID in the specified range
-- Use the default template (`assets/templates/template.json`)
-- Output images to the `artifacts/` directory
-- Provide progress feedback and error reporting
-- Skip events that don't exist in `_data/events.yml`
+This will automatically process all events in `_data/events.yml` and generate corresponding images in the `artifacts/` directory.
 
 ## Contributing
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
