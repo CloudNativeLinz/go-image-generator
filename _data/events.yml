@@ -40,7 +40,7 @@
       speaker: "Malte Menkhoff"
       recording: "https://www.youtube.com/watch?v=ouWVGtRyRkA"
     - title: "Kubernetes certifications: How to prepare and get it done"
-      speaker: "Juliano Costa and Yuri Oliveira"
+      speaker: "Juliano Costa & Yuri Oliveira"
       recording: "https://www.youtube.com/watch?v=ouWVGtRyRkA"
 
 
@@ -148,8 +148,8 @@
     - title: "The 1001 serverless options of Microsoft Azure"
       speaker: "Philipp Weckerle"
       recording: "https://www.youtube.com/watch?v=81Tg--7GIFI"
-    - title: "[canceled] Cloud-native delivery with Keptn"
-      speaker: "Jürgen Etzlstorfer"
+    - title: "How OpenTelemetry is currently used at my company"
+      speaker: "Juliano Costa"
 
 - id: 12
   title: "12. Cloud Native Computing Linz Meetup"
@@ -574,7 +574,7 @@
 - id: 39
   title: "Zero-Downtime Experiences & Event-Driven Microservices at scale"
   date: "2025-04-29"
-  host: "tractive"
+  host: "Tractive"
   event_link: "https://www.meetup.com/cloud-native-linz/events/307219291/"
   registrations: ""
   participants: "31"
@@ -610,7 +610,7 @@
   host: "Gepardec"
   event_link: "https://www.meetup.com/cloud-native-linz/events/307975704/"
   registrations: ""
-  participants: ""
+  participants: "17"
   talks:
     - title: "OpenRewrite in a Nutshell: Scaling Upgrades with Practical Insights"
       speaker: "Simon Gartner"
@@ -623,7 +623,7 @@
   title: "cTENcf Party - celebrating 10 years of CNCF and 5 years of Cloud Native Linz"
   date: "2025-09-24"
   host: "netcetera"
-  event_link: "https://www.meetup.com/cloud-native-linz/events/307975704/"
+  event_link: ""
   registrations: ""
   participants: ""
   talks:
@@ -632,3 +632,25 @@
       image: "https://media.licdn.com/dms/image/v2/C4E03AQHKADs1R6XXuw/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1653720929705?e=1757548800&v=beta&t=vzgx8X9dsz8AztA1wzVPkKW8yPKhK_XzWmyvGHqdR9Q"
     - title: "Open Mic - Share your Cloud Native Journey"
       speaker: "the community"
+
+- id: 43
+  title: "October 2025 edition"
+  date: "2025-10-28"
+  host: ".LOUPE"
+  event_link: ""
+  registrations: ""
+  participants: ""
+  talks:
+    - title: "Talk title to be announced soon"
+      speaker: "Matthias Steinbauer"
+      image: "https://media.licdn.com/dms/image/v2/D4D03AQGeyJ7GQgLw4g/profile-displayphoto-shrink_800_800/B4DZd56zluGYAg-/0/1750097148964?e=1757548800&v=beta&t=EnFFVhZc9Uozgdsd5omGpeHGrl9HJe0DYR7FQoFBz70"
+
+- id: 44
+  title: "November 2025 edition"
+  date: "2025-11-25"
+  host: "MIC"
+  event_link: ""
+  registrations: ""
+  participants: ""
+  talks:
+
