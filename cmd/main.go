@@ -6,7 +6,9 @@ import (
 	"fmt"
 	"image"
 	"image/draw"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"strings"
 
@@ -20,6 +22,11 @@ import (
 	"golang.org/x/image/font/opentype"
 
 	"gopkg.in/yaml.v3"
+)
+
+// Constants
+const (
+	EVENTS_URL = "https://raw.githubusercontent.com/CloudNativeLinz/cloudnativelinz.github.io/refs/heads/main/_data/events.yml"
 )
 
 // renderTextFromTemplate renders all text elements from a template onto the image
@@ -161,11 +168,31 @@ func loadTemplate(templatePath string) (*types.Template, error) {
 	return &template, nil
 }
 
-// loadEventData loads event data from events.yml and extracts information for the given eventID
-func loadEventData(eventID string) (*types.EventData, error) {
-	eventsData, err := os.ReadFile("_data/events.yml")
+// fetchEventsData fetches events data from the remote GitHub URL
+func fetchEventsData() ([]byte, error) {
+	resp, err := http.Get(EVENTS_URL)
 	if err != nil {
-		return nil, fmt.Errorf("error reading events.yml: %w", err)
+		return nil, fmt.Errorf("error fetching events data from %s: %w", EVENTS_URL, err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("failed to fetch events data: HTTP %d", resp.StatusCode)
+	}
+
+	eventsData, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("error reading response body: %w", err)
+	}
+
+	return eventsData, nil
+}
+
+// loadEventData loads event data from remote events.yml and extracts information for the given eventID
+func loadEventData(eventID string) (*types.EventData, error) {
+	eventsData, err := fetchEventsData()
+	if err != nil {
+		return nil, fmt.Errorf("error fetching events data: %w", err)
 	}
 
 	var events types.EventsYAML
@@ -204,11 +231,11 @@ func loadEventData(eventID string) (*types.EventData, error) {
 	return nil, fmt.Errorf("event with ID %s not found in events.yml", eventID)
 }
 
-// loadAllEvents loads all events from events.yml and returns them as a slice of EventData
+// loadAllEvents loads all events from remote events.yml and returns them as a slice of EventData
 func loadAllEvents() ([]types.EventData, error) {
-	eventsData, err := os.ReadFile("_data/events.yml")
+	eventsData, err := fetchEventsData()
 	if err != nil {
-		return nil, fmt.Errorf("error reading events.yml: %w", err)
+		return nil, fmt.Errorf("error fetching events data: %w", err)
 	}
 
 	var events types.EventsYAML
