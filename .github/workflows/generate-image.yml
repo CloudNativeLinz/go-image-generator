@@ -1,6 +1,9 @@
 name: Generate Image Artifact
 
 on:
+  repository_dispatch:
+    types: [website-merged]
+
   workflow_dispatch:
     inputs:
       id:
@@ -70,5 +73,5 @@ jobs:
       - name: Upload image artifact(s)
         uses: actions/upload-artifact@v4
         with:
-          name: generated-image${{ github.event.inputs.id && format('-{0}', github.event.inputs.id) || 's-all' }}
+          name: generated-images
           path: artifacts/
