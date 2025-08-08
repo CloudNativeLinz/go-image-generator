@@ -62,7 +62,8 @@ go-image-generator
 ## Features
 - Generate images using a JSON template for layout, fonts, and colors
 - Dynamically populate speaker, talk, and sponsor information from a YAML event file (`_data/events.yml`)
-- Select event data by event ID using the `--id` CLI flag
+- **Bulk generation**: Generate images for all events in `_data/events.yml` when no event ID is specified
+- Select event data by event ID using the `--id` CLI flag for single event generation
 - **Speaker images**: Automatically render speaker profile pictures from URLs or local files
 - **Advanced text rendering**: Support for dual speakers with title/name pairs and intelligent text wrapping
 - **Date formatting**: Automatic parsing and formatting of event dates
@@ -75,29 +76,35 @@ To generate an image, run the application with the necessary command-line argume
 
 ### Command-Line Arguments
 - `--template`: Path to the JSON template file (required for layout, fonts, and colors)
-- `--output`: Path to save the generated image (e.g., `file.jpg`)
-- `--id`: (Optional) Event ID from `_data/events.yml` to use for speaker/talk/sponsor text
+- `--output`: Path to save the generated image (e.g., `file.jpg`) - only used for single event generation
+- `--id`: (Optional) Event ID from `_data/events.yml` to use for speaker/talk/sponsor text. If not provided or empty, generates images for all events
 - `--background`: (Optional) Path to a background image (used only if no template is provided)
 - `--overlays`: (Optional) Comma-separated list of overlay image paths
 
 ### Example Commands
 
-**Basic usage with event data:**
+**Generate images for all events:**
+```bash
+go run cmd/main.go --template assets/templates/template.json
+```
+This will generate images for all events in `_data/events.yml` and save them to the `artifacts/` directory with filenames like `1.jpg`, `2.jpg`, etc.
+
+**Generate image for a specific event:**
 ```bash
 go run cmd/main.go --template assets/templates/template.json --id 41
 ```
 This will use the layout and style from the template, and populate the speaker, talk, and sponsor fields from the event with ID 41 in `_data/events.yml`. Speaker images will be automatically included if specified in the event data.
 
-**Custom output path:**
+**Custom output path for single event:**
 ```bash
 go run cmd/main.go --template assets/templates/template.json --id 42 --output my-custom-image.jpg
 ```
 
 **Using template without event data:**
 ```bash
-go run cmd/main.go --template assets/templates/template.json
+go run cmd/main.go --template assets/templates/template.json --id ""
 ```
-If `--id` is not provided, the text fields from the template will be used as defaults.
+If `--id` is empty or not provided, images will be generated for all events. If you want to use template defaults without any event data, you would need to modify the code accordingly.
 
 **Batch processing multiple events:**
 ```bash
@@ -106,6 +113,23 @@ If `--id` is not provided, the text fields from the template will be used as def
 This will generate images for events with IDs 1 through 50.
 
 You can find the output images in the `artifacts/` directory after running the command.
+
+## GitHub Actions Workflow
+
+The project includes a GitHub Actions workflow (`.github/workflows/generate-image.yml`) for automated image generation:
+
+### Manual Trigger (workflow_dispatch)
+You can manually trigger the workflow from the GitHub Actions tab:
+- **Leave Event ID empty**: Generates images for all events in `_data/events.yml`
+- **Specify Event ID**: Generates image for a single event (e.g., `42`)
+
+### Automatic Trigger
+The workflow also runs automatically on push to the `main` branch, generating images for all events.
+
+### Artifacts
+Generated images are uploaded as GitHub Actions artifacts:
+- **All events**: Artifact named `generated-images-all`
+- **Single event**: Artifact named `generated-image-{ID}` (e.g., `generated-image-42`)
 
 ## Data Files
 - **Template:** `assets/templates/template.json` (controls layout, fonts, colors, positioning, and speaker image placement)
@@ -135,7 +159,17 @@ Speaker images can be either local files (in `assets/speaker-images/`) or remote
 
 ## Batch Processing
 
-The project includes a batch processing script (`run_batch.sh`) for generating multiple images efficiently:
+The project supports batch processing in multiple ways:
+
+### Built-in Bulk Generation
+Generate images for all events with a single command:
+```bash
+go run cmd/main.go --template assets/templates/template.json
+```
+This will automatically process all events in `_data/events.yml` and generate corresponding images.
+
+### Batch Script for Range Processing
+The project also includes a batch processing script (`run_batch.sh`) for generating images within a specific range:
 
 ```bash
 # Generate images for events 1-10

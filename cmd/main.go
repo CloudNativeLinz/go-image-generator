@@ -204,6 +204,100 @@ func loadEventData(eventID string) (*types.EventData, error) {
 	return nil, fmt.Errorf("event with ID %s not found in events.yml", eventID)
 }
 
+// loadAllEvents loads all events from events.yml and returns them as a slice of EventData
+func loadAllEvents() ([]types.EventData, error) {
+	eventsData, err := os.ReadFile("_data/events.yml")
+	if err != nil {
+		return nil, fmt.Errorf("error reading events.yml: %w", err)
+	}
+
+	var events types.EventsYAML
+	if err = yaml.Unmarshal(eventsData, &events); err != nil {
+		return nil, fmt.Errorf("error parsing events.yml: %w", err)
+	}
+
+	var allEventData []types.EventData
+	for _, event := range events {
+		eventData := types.EventData{}
+
+		if len(event.Talks) > 0 {
+			eventData.Speaker1Title = event.Talks[0].Title
+			eventData.Speaker1Name = event.Talks[0].Speaker
+			eventData.Speaker1Image = event.Talks[0].Image
+		}
+		if len(event.Talks) > 1 {
+			eventData.Speaker2Title = event.Talks[1].Title
+			eventData.Speaker2Name = event.Talks[1].Speaker
+			eventData.Speaker2Image = event.Talks[1].Image
+		}
+		if event.Host != "" {
+			eventData.Sponsor = event.Host
+		}
+		if event.Date != "" {
+			eventData.Date = event.Date
+		}
+		if event.Title != "" {
+			eventData.EventTitle = event.Title
+		}
+
+		// Store the event ID for filename generation
+		eventData.Title = fmt.Sprintf("%d", event.ID)
+
+		allEventData = append(allEventData, eventData)
+	}
+
+	return allEventData, nil
+}
+
+// generateImageForEvent generates an image for a single event
+func generateImageForEvent(eventData *types.EventData, templatePath, backgroundPath, overlayPaths, outputDir string) error {
+	// Load background image
+	background, err := loadBackgroundImage(templatePath, backgroundPath)
+	if err != nil {
+		return fmt.Errorf("error loading background image: %w", err)
+	}
+
+	// Process background and overlay images
+	rgbaFinalImage, err := processImages(background, overlayPaths)
+	if err != nil {
+		return fmt.Errorf("error processing images: %w", err)
+	}
+
+	// Load template if provided
+	var template *types.Template
+	if templatePath != "" {
+		tmpl, err := loadTemplate(templatePath)
+		if err != nil {
+			return fmt.Errorf("error loading template: %w", err)
+		}
+		template = tmpl
+	}
+
+	// Render text using template if provided
+	if err := renderTextFromTemplate(templatePath, eventData, rgbaFinalImage, template); err != nil {
+		return fmt.Errorf("error rendering text: %w", err)
+	}
+
+	// Add speaker images if available
+	if eventData != nil && template != nil {
+		if err := addSpeakerImages(rgbaFinalImage, eventData, template); err != nil {
+			log.Printf("Warning: Error adding speaker images for event %s: %v", eventData.Title, err)
+		}
+	}
+
+	// Determine output path
+	finalOutputPath := fmt.Sprintf("%s/%s.jpg", outputDir, eventData.Title)
+
+	// Save final image
+	err = utils.SaveImage(finalOutputPath, rgbaFinalImage)
+	if err != nil {
+		return fmt.Errorf("error saving final image: %w", err)
+	}
+
+	fmt.Printf("Image generated successfully for event %s: %s\n", eventData.Title, finalOutputPath)
+	return nil
+}
+
 // renderTextElement renders a text element with proper wrapping and positioning
 func renderTextElement(textRenderer *renderer.TextRenderer, img *image.RGBA, element types.TextElement, imgWidth, imgHeight int, lineSpacing float64) error {
 	boxX := int(element.Position.X * float64(imgWidth))
@@ -319,14 +413,48 @@ func main() {
 
 	flag.Parse()
 
+	// Check templates directory
+	checkTemplatesDirectory()
+
+	// Ensure artifacts directory exists
+	artifactsDir := "artifacts"
+	if _, err := os.Stat(artifactsDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(artifactsDir, 0755); err != nil {
+			log.Fatalf("Error creating artifacts directory: %v", err)
+		}
+	}
+
+	// If no event ID is provided or empty, generate images for all events
+	if *eventID == "" {
+		fmt.Println("No event ID provided. Generating images for all events...")
+
+		allEventData, err := loadAllEvents()
+		if err != nil {
+			log.Fatalf("Error loading all events: %v", err)
+		}
+
+		fmt.Printf("Generating images for %d events...\n", len(allEventData))
+
+		successCount := 0
+		for _, eventData := range allEventData {
+			err := generateImageForEvent(&eventData, *templatePath, *backgroundPath, *overlayPaths, artifactsDir)
+			if err != nil {
+				log.Printf("Error generating image for event %s: %v", eventData.Title, err)
+			} else {
+				successCount++
+			}
+		}
+
+		fmt.Printf("Successfully generated %d out of %d images.\n", successCount, len(allEventData))
+		return
+	}
+
+	// Generate image for single event (original logic)
 	// Setup output path and artifacts directory
 	finalOutputPath, err := setupOutputPath(*outputPath, *eventID)
 	if err != nil {
 		log.Fatalf("Error setting up output path: %v", err)
 	}
-
-	// Check templates directory
-	checkTemplatesDirectory()
 
 	// Load background image
 	background, err := loadBackgroundImage(*templatePath, *backgroundPath)

@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       id:
-        description: 'Event ID to use for --id'
+        description: 'Event ID to use for --id (leave empty to generate all events)'
         required: false
         default: ''
 
@@ -26,15 +26,23 @@ jobs:
       - name: Install dependencies
         run: go mod download
 
-      - name: Generate image
+      - name: Generate image(s)
         run: |
-          go run ./cmd/main.go \
-            --background assets/backgrounds/meetup-background.jpg \
-            --template assets/templates/template.json \
-            ${{ github.event.inputs.id && format('--id {0}', github.event.inputs.id) || '' }}
+          if [ -n "${{ github.event.inputs.id }}" ]; then
+            echo "Generating image for event ID: ${{ github.event.inputs.id }}"
+            go run ./cmd/main.go \
+              --background assets/backgrounds/meetup-background.jpg \
+              --template assets/templates/template.json \
+              --id ${{ github.event.inputs.id }}
+          else
+            echo "Generating images for all events"
+            go run ./cmd/main.go \
+              --background assets/backgrounds/meetup-background.jpg \
+              --template assets/templates/template.json
+          fi
 
-      - name: Upload image artifact
+      - name: Upload image artifact(s)
         uses: actions/upload-artifact@v4
         with:
-          name: generated-image
+          name: generated-image${{ github.event.inputs.id && format('-{0}', github.event.inputs.id) || 's-all' }}
           path: artifacts/
