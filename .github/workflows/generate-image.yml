@@ -14,9 +14,13 @@ on:
 jobs:
   build-and-generate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -40,6 +44,30 @@ jobs:
               --background assets/backgrounds/meetup-background.jpg \
               --template assets/templates/template.json
           fi
+
+      - name: Check for changes in artifacts
+        id: check_changes
+        run: |
+          if git diff --quiet artifacts/; then
+            echo "No changes detected in artifacts/"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "Changes detected in artifacts/"
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push generated images
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add artifacts/
+          if [ -n "${{ github.event.inputs.id }}" ]; then
+            git commit -m "Generate image for event ID: ${{ github.event.inputs.id }}"
+          else
+            git commit -m "Generate images for all events"
+          fi
+          git push
 
       - name: Upload image artifact(s)
         uses: actions/upload-artifact@v4
