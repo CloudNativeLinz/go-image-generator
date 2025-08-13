@@ -98,6 +98,28 @@ func (ir *ImageRenderer) OverlaySpeakerImages(background *image.RGBA, speaker1Im
 	return nil
 }
 
+// ResizeKeepAspect resizes the given image to the specified width while preserving aspect ratio.
+// If width <= 0, the source image is returned unchanged.
+func (ir *ImageRenderer) ResizeKeepAspect(src image.Image, width int) image.Image {
+	if width <= 0 {
+		return src
+	}
+	b := src.Bounds()
+	srcW := b.Dx()
+	srcH := b.Dy()
+	if srcW == 0 || srcH == 0 {
+		return src
+	}
+	// Compute target height maintaining aspect ratio, round to nearest int
+	height := int(math.Round(float64(width) * float64(srcH) / float64(srcW)))
+	if height <= 0 {
+		height = 1
+	}
+	dst := image.NewRGBA(image.Rect(0, 0, width, height))
+	xdraw.CatmullRom.Scale(dst, dst.Bounds(), src, b, draw.Over, nil)
+	return dst
+}
+
 // scaleImageToFitCircular scales the source image to fit within the specified rectangular bounds,
 // then applies a circular crop and draws the result onto the destination image.
 //
@@ -150,7 +172,7 @@ func (ir *ImageRenderer) scaleImageToFitCircular(dst *image.RGBA, src image.Imag
 	)
 
 	// Scale the image to the temporary image
-	xdraw.BiLinear.Scale(tempImg, targetBounds, src, srcBounds, draw.Over, nil)
+	xdraw.CatmullRom.Scale(tempImg, targetBounds, src, srcBounds, draw.Over, nil)
 
 	// Now apply circular mask and draw to destination
 	ir.drawCircularImage(dst, tempImg, bounds)
@@ -161,7 +183,6 @@ func (ir *ImageRenderer) scaleImageToFitCircular(dst *image.RGBA, src image.Imag
 // The function iterates over each pixel in the given bounds and calculates its distance from the center.
 // Only pixels within the circle (with radius equal to half the smaller dimension of bounds) are copied from src to dst.
 // Pixels outside the circle are ignored, resulting in a circularly cropped image region.
-//
 // Parameters:
 //
 //	dst    - The destination RGBA image where the circularly cropped region will be drawn.

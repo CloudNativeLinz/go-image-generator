@@ -32,7 +32,9 @@ func SaveImage(filePath string, img image.Image) error {
 	}
 	defer file.Close()
 
-	return jpeg.Encode(file, img, nil)
+	// Use higher quality to reduce compression artifacts
+	opts := &jpeg.Options{Quality: 92}
+	return jpeg.Encode(file, img, opts)
 }
 
 // ParseEventDate parses a date string in "YYYY-MM-DD" format and returns a formatted string like "23rd May 2024"

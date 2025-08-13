@@ -134,7 +134,7 @@ func checkTemplatesDirectory() {
 }
 
 // setupOutputPath creates artifacts directory and determines final output path
-func setupOutputPath(outputPath string, eventID string) (string, error) {
+func setupOutputPath(outputPath string, eventID string, width int) (string, error) {
 	artifactsDir := "artifacts"
 	if _, err := os.Stat(artifactsDir); os.IsNotExist(err) {
 		if err := os.MkdirAll(artifactsDir, 0755); err != nil {
@@ -144,7 +144,11 @@ func setupOutputPath(outputPath string, eventID string) (string, error) {
 
 	finalOutputPath := outputPath
 	if finalOutputPath == "" {
-		finalOutputPath = artifactsDir + "/" + eventID + ".jpg"
+		if width > 0 {
+			finalOutputPath = fmt.Sprintf("%s/%s-%d.jpg", artifactsDir, eventID, width)
+		} else {
+			finalOutputPath = artifactsDir + "/" + eventID + ".jpg"
+		}
 	} else if !strings.Contains(finalOutputPath, "/") && !strings.HasPrefix(finalOutputPath, ".") {
 		// If only a filename is given, save it in artifacts/
 		finalOutputPath = artifactsDir + "/" + finalOutputPath
@@ -277,7 +281,7 @@ func loadAllEvents() ([]types.EventData, error) {
 }
 
 // generateImageForEvent generates an image for a single event
-func generateImageForEvent(eventData *types.EventData, templatePath, backgroundPath, overlayPaths, outputDir string) error {
+func generateImageForEvent(eventData *types.EventData, templatePath, backgroundPath, overlayPaths, outputDir string, width int) error {
 	// Load background image
 	background, err := loadBackgroundImage(templatePath, backgroundPath)
 	if err != nil {
@@ -312,8 +316,26 @@ func generateImageForEvent(eventData *types.EventData, templatePath, backgroundP
 		}
 	}
 
+	// Resize to width if requested (keep aspect ratio)
+	if width > 0 {
+		ir := renderer.ImageRenderer{}
+		resized := ir.ResizeKeepAspect(rgbaFinalImage, width)
+		// Ensure rgbaFinalImage references the resized image for downstream save
+		if r, ok := resized.(*image.RGBA); ok {
+			rgbaFinalImage = r
+		} else {
+			// Convert to RGBA if needed
+			tmp := image.NewRGBA(resized.Bounds())
+			draw.Draw(tmp, tmp.Bounds(), resized, image.Point{}, draw.Src)
+			rgbaFinalImage = tmp
+		}
+	}
+
 	// Determine output path
 	finalOutputPath := fmt.Sprintf("%s/%s.jpg", outputDir, eventData.Title)
+	if width > 0 {
+		finalOutputPath = fmt.Sprintf("%s/%s-%d.jpg", outputDir, eventData.Title, width)
+	}
 
 	// Save final image
 	err = utils.SaveImage(finalOutputPath, rgbaFinalImage)
@@ -437,6 +459,7 @@ func main() {
 	outputPath := flag.String("output", "", "Path to save the final image")
 	templatePath := flag.String("template", "", "Path to the JSON template file") // Template file
 	eventID := flag.String("id", "", "ID of the event in events.yml to use for speaker/talk text")
+	width := flag.Int("width", 0, "Output image width in pixels (keeps aspect ratio)")
 
 	flag.Parse()
 
@@ -464,7 +487,7 @@ func main() {
 
 		successCount := 0
 		for _, eventData := range allEventData {
-			err := generateImageForEvent(&eventData, *templatePath, *backgroundPath, *overlayPaths, artifactsDir)
+			err := generateImageForEvent(&eventData, *templatePath, *backgroundPath, *overlayPaths, artifactsDir, *width)
 			if err != nil {
 				log.Printf("Error generating image for event %s: %v", eventData.Title, err)
 			} else {
@@ -478,7 +501,7 @@ func main() {
 
 	// Generate image for single event (original logic)
 	// Setup output path and artifacts directory
-	finalOutputPath, err := setupOutputPath(*outputPath, *eventID)
+	finalOutputPath, err := setupOutputPath(*outputPath, *eventID, *width)
 	if err != nil {
 		log.Fatalf("Error setting up output path: %v", err)
 	}
@@ -525,7 +548,26 @@ func main() {
 		}
 	}
 
+	// Resize to width if requested (keep aspect ratio)
+	if *width > 0 {
+		ir := renderer.ImageRenderer{}
+		resized := ir.ResizeKeepAspect(rgbaFinalImage, *width)
+		// Convert to RGBA if needed for further processing
+		if r, ok := resized.(*image.RGBA); ok {
+			rgbaFinalImage = r
+		} else {
+			tmp := image.NewRGBA(resized.Bounds())
+			draw.Draw(tmp, tmp.Bounds(), resized, image.Point{}, draw.Src)
+			rgbaFinalImage = tmp
+		}
+	}
+
 	// Save final image
+	// If no explicit output file name was provided, adjust default to include width when set
+	if *outputPath == "" && *width > 0 {
+		finalOutputPath = fmt.Sprintf("artifacts/%s-%d.jpg", *eventID, *width)
+	}
+
 	err = utils.SaveImage(finalOutputPath, rgbaFinalImage)
 	if err != nil {
 		log.Fatalf("Error saving final image: %v", err)

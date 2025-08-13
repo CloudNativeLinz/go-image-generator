@@ -40,10 +40,16 @@ jobs:
             go run ./cmd/main.go \
               --template assets/templates/template.json \
               --id ${{ github.event.inputs.id }}
+            go run ./cmd/main.go \
+              --template assets/templates/template.json \
+              --id ${{ github.event.inputs.id }} --width 550
           else
             echo "Generating images for all events"
             go run ./cmd/main.go \
               --template assets/templates/template.json
+            echo "Generating images for all events with width 550"
+            go run ./cmd/main.go \
+              --template assets/templates/template.json --width 550
           fi
 
       - name: Check for changes in artifacts
