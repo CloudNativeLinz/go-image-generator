@@ -78,6 +78,7 @@ To generate an image, run the application with the necessary command-line argume
 - `--output`: Path to save the generated image (e.g., `file.jpg`) - only used for single event generation
 - `--id`: (Optional) Event ID from `_data/events.yml` to use for speaker/talk/sponsor text. If not provided or empty, generates images for all events
 - `--background`: (Optional) Path to a background image (used only if no template is provided)
+- `--width`: (Optional) Set the width of the generated image in pixels.
 - `--overlays`: (Optional) Comma-separated list of overlay image paths
 
 ### Example Commands
