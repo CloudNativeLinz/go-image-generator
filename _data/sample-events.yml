@@ -1,0 +1,23 @@
+- id: 31
+  title: "Secure K8s Deployment and API Management in Azure"
+  date: "2024-04-23"
+  host: "Public Cloud Group"
+  talks:
+    - title: "How to securely deploy Kubernetes on Azure"
+      speaker: "Marcel Tober & Andreas Wimmersberger"
+      image: "/assets/speaker-images/36-1.jpeg"
+    - title: "Secrets Management - from plaintext to hiding keys in the Swiss Alps"
+      speaker: "Markus Adelsberger & Georg Mayrhofer"
+      image: "/assets/speaker-images/jetzlstorfer.jpg"
+
+- id: 32  
+  title: "Test Event"
+  date: "2024-05-15"
+  host: "Test Host"
+  talks:
+    - title: "Test Talk 1"
+      speaker: "Test Speaker 1"
+      image: "/assets/speaker-images/juliano-costa.jpg"
+    - title: "Test Talk 2" 
+      speaker: "Test Speaker 2"
+      image: "/assets/speaker-images/jetzlstorfer.jpg"

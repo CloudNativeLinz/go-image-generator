@@ -172,6 +172,17 @@ func loadTemplate(templatePath string) (*types.Template, error) {
 	return &template, nil
 }
 
+// loadEventsData loads events data from either a local file or remote URL
+func loadEventsData(eventsFile string) ([]byte, error) {
+	if eventsFile != "" {
+		// Load from local file
+		return os.ReadFile(eventsFile)
+	} else {
+		// Load from remote URL
+		return fetchEventsData()
+	}
+}
+
 // fetchEventsData fetches events data from the remote GitHub URL
 func fetchEventsData() ([]byte, error) {
 	resp, err := http.Get(EVENTS_URL)
@@ -192,11 +203,11 @@ func fetchEventsData() ([]byte, error) {
 	return eventsData, nil
 }
 
-// loadEventData loads event data from remote events.yml and extracts information for the given eventID
-func loadEventData(eventID string) (*types.EventData, error) {
-	eventsData, err := fetchEventsData()
+// loadEventData loads event data from events.yml (local or remote) and extracts information for the given eventID
+func loadEventData(eventID string, eventsFile string) (*types.EventData, error) {
+	eventsData, err := loadEventsData(eventsFile)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching events data: %w", err)
+		return nil, fmt.Errorf("error loading events data: %w", err)
 	}
 
 	var events types.EventsYAML
@@ -235,11 +246,11 @@ func loadEventData(eventID string) (*types.EventData, error) {
 	return nil, fmt.Errorf("event with ID %s not found in events.yml", eventID)
 }
 
-// loadAllEvents loads all events from remote events.yml and returns them as a slice of EventData
-func loadAllEvents() ([]types.EventData, error) {
-	eventsData, err := fetchEventsData()
+// loadAllEvents loads all events from events.yml (local or remote) and returns them as a slice of EventData
+func loadAllEvents(eventsFile string) ([]types.EventData, error) {
+	eventsData, err := loadEventsData(eventsFile)
 	if err != nil {
-		return nil, fmt.Errorf("error fetching events data: %w", err)
+		return nil, fmt.Errorf("error loading events data: %w", err)
 	}
 
 	var events types.EventsYAML
@@ -460,6 +471,7 @@ func main() {
 	templatePath := flag.String("template", "", "Path to the JSON template file") // Template file
 	eventID := flag.String("id", "", "ID of the event in events.yml to use for speaker/talk text")
 	width := flag.Int("width", 0, "Output image width in pixels (keeps aspect ratio)")
+	eventsFile := flag.String("file", "", "Path to local events.yml file (instead of remote URL)")
 
 	flag.Parse()
 
@@ -478,7 +490,7 @@ func main() {
 	if *eventID == "" {
 		fmt.Println("No event ID provided. Generating images for all events...")
 
-		allEventData, err := loadAllEvents()
+		allEventData, err := loadAllEvents(*eventsFile)
 		if err != nil {
 			log.Fatalf("Error loading all events: %v", err)
 		}
@@ -520,7 +532,7 @@ func main() {
 	// Load event data if eventID is provided
 	var eventData *types.EventData
 	if *eventID != "" {
-		eventData, err = loadEventData(*eventID)
+		eventData, err = loadEventData(*eventID, *eventsFile)
 		if err != nil {
 			log.Fatalf("Error loading event data: %v", err)
 		}

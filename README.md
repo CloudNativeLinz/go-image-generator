@@ -64,6 +64,8 @@ go-image-generator
 - Dynamically populate speaker, talk, and sponsor information from a YAML event file (`_data/events.yml`)
 - **Bulk generation**: Generate images for all events in `_data/events.yml` when no event ID is specified
 - Select event data by event ID using the `--id` CLI flag for single event generation
+- **Local or remote events**: Use `--file` to specify a local events.yml file, or fetch from remote URL by default
+- **Resizable output**: Use `--width` to generate images at specific widths while preserving aspect ratio
 - **Speaker images**: Automatically render speaker profile pictures from URLs or local files
 - **Advanced text rendering**: Support for dual speakers with title/name pairs and intelligent text wrapping
 - **Date formatting**: Automatic parsing and formatting of event dates
@@ -78,7 +80,8 @@ To generate an image, run the application with the necessary command-line argume
 - `--output`: Path to save the generated image (e.g., `file.jpg`) - only used for single event generation
 - `--id`: (Optional) Event ID from `_data/events.yml` to use for speaker/talk/sponsor text. If not provided or empty, generates images for all events
 - `--background`: (Optional) Path to a background image (used only if no template is provided)
-- `--width`: (Optional) Set the width of the generated image in pixels.
+- `--width`: (Optional) Set the width of the generated image in pixels (keeps aspect ratio)
+- `--file`: (Optional) Path to a local events.yml file (instead of using the remote URL)
 - `--overlays`: (Optional) Comma-separated list of overlay image paths
 
 ### Example Commands
@@ -94,6 +97,18 @@ This will generate images for all events in `_data/events.yml` and save them to 
 go run cmd/main.go --template assets/templates/template.json --id 41
 ```
 This will use the layout and style from the template, and populate the speaker, talk, and sponsor fields from the event with ID 41 in `_data/events.yml`. Speaker images will be automatically included if specified in the event data.
+
+**Generate image using a local events file:**
+```bash
+go run cmd/main.go --template assets/templates/template.json --id 31 --file _data/sample-events.yml
+```
+This will use a local events.yml file instead of fetching from the remote URL.
+
+**Generate image with custom width:**
+```bash
+go run cmd/main.go --template assets/templates/template.json --id 41 --width 800
+```
+This will generate an image resized to 800 pixels width while maintaining aspect ratio. The output file will be named `41-800.jpg`.
 
 **Custom output path for single event:**
 ```bash
