@@ -10,6 +10,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"go-image-generator/pkg/renderer"
@@ -215,6 +216,13 @@ func loadEventData(eventID string, eventsFile string) (*types.EventData, error) 
 		return nil, fmt.Errorf("error parsing events.yml: %w", err)
 	}
 
+	// Preprocess speaker images for all events
+	eventsSlice := []types.Event(events)
+	if err = utils.PreprocessEventSpeakerImages(&eventsSlice); err != nil {
+		log.Printf("Warning: Failed to preprocess speaker images: %v", err)
+	}
+	events = types.EventsYAML(eventsSlice)
+
 	for _, event := range events {
 		if fmt.Sprintf("%d", event.ID) == eventID {
 			eventData := &types.EventData{}
@@ -257,6 +265,13 @@ func loadAllEvents(eventsFile string) ([]types.EventData, error) {
 	if err = yaml.Unmarshal(eventsData, &events); err != nil {
 		return nil, fmt.Errorf("error parsing events.yml: %w", err)
 	}
+
+	// Preprocess speaker images for all events
+	eventsSlice := []types.Event(events)
+	if err = utils.PreprocessEventSpeakerImages(&eventsSlice); err != nil {
+		log.Printf("Warning: Failed to preprocess speaker images: %v", err)
+	}
+	events = types.EventsYAML(eventsSlice)
 
 	var allEventData []types.EventData
 	for _, event := range events {
@@ -449,18 +464,50 @@ func applyEventDataToTemplate(template *types.Template, eventData *types.EventDa
 func addSpeakerImages(rgbaFinalImage *image.RGBA, eventData *types.EventData, template *types.Template) error {
 	imgRenderer := renderer.ImageRenderer{}
 
-	// Clean up the image paths (remove leading slash if present)
-	speaker1Image := eventData.Speaker1Image
-	speaker2Image := eventData.Speaker2Image
+	// Resolve speaker image paths using the new logic
+	var speaker1Image, speaker2Image string
+	var err error
 
-	if speaker1Image != "" && strings.HasPrefix(speaker1Image, "/") {
-		speaker1Image = strings.TrimPrefix(speaker1Image, "/")
+	if eventData.Speaker1Image != "" {
+		// Extract event ID from eventData.Title (which contains the event ID)
+		eventID := eventData.Title
+		if eventIDInt := parseEventID(eventID); eventIDInt > 0 {
+			speaker1Image, err = utils.GetSpeakerImagePath(eventData.Speaker1Image, eventIDInt, 1)
+			if err != nil {
+				log.Printf("Warning: Failed to resolve speaker 1 image: %v", err)
+				speaker1Image = ""
+			}
+		} else {
+			// Fallback to original logic for non-standard event IDs
+			speaker1Image = strings.TrimPrefix(eventData.Speaker1Image, "/")
+		}
 	}
-	if speaker2Image != "" && strings.HasPrefix(speaker2Image, "/") {
-		speaker2Image = strings.TrimPrefix(speaker2Image, "/")
+
+	if eventData.Speaker2Image != "" {
+		// Extract event ID from eventData.Title (which contains the event ID)
+		eventID := eventData.Title
+		if eventIDInt := parseEventID(eventID); eventIDInt > 0 {
+			speaker2Image, err = utils.GetSpeakerImagePath(eventData.Speaker2Image, eventIDInt, 2)
+			if err != nil {
+				log.Printf("Warning: Failed to resolve speaker 2 image: %v", err)
+				speaker2Image = ""
+			}
+		} else {
+			// Fallback to original logic for non-standard event IDs
+			speaker2Image = strings.TrimPrefix(eventData.Speaker2Image, "/")
+		}
 	}
 
 	return imgRenderer.OverlaySpeakerImages(rgbaFinalImage, speaker1Image, speaker2Image, template)
+}
+
+// parseEventID converts an event ID string to integer
+func parseEventID(eventID string) int {
+	id, err := strconv.Atoi(eventID)
+	if err != nil {
+		return 0
+	}
+	return id
 }
 
 func main() {
