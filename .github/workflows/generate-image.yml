@@ -52,27 +52,27 @@ jobs:
               --template assets/templates/template.json --width 550
           fi
 
-      - name: Check for changes in artifacts
+      - name: Check for changes in artifacts and speaker images
         id: check_changes
         run: |
-          git add artifacts/
+          git add artifacts/ assets/speaker-images/
           if git diff --cached --quiet; then
-            echo "No changes detected in artifacts/"
+            echo "No changes detected in artifacts/ or assets/speaker-images/"
             echo "changes=false" >> $GITHUB_OUTPUT
           else
-            echo "Changes detected in artifacts/"
+            echo "Changes detected in artifacts/ or assets/speaker-images/"
             echo "changes=true" >> $GITHUB_OUTPUT
           fi
 
-      - name: Commit and push generated images
+      - name: Commit and push generated images and speaker images
         if: steps.check_changes.outputs.changes == 'true'
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           if [ -n "${{ github.event.inputs.id }}" ]; then
-            git commit -m "Generate image for event ID: ${{ github.event.inputs.id }}"
+            git commit -m "Generate images and download speaker images for event ID: ${{ github.event.inputs.id }}"
           else
-            git commit -m "Generate images for all events"
+            git commit -m "Generate images and download speaker images for all events"
           fi
           git push
 
@@ -80,4 +80,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: generated-images
-          path: artifacts/
+          path: |
+            artifacts/
+            assets/speaker-images/
