@@ -216,15 +216,16 @@ func loadEventData(eventID string, eventsFile string) (*types.EventData, error) 
 		return nil, fmt.Errorf("error parsing events.yml: %w", err)
 	}
 
-	// Preprocess speaker images for all events
-	eventsSlice := []types.Event(events)
-	if err = utils.PreprocessEventSpeakerImages(&eventsSlice); err != nil {
-		log.Printf("Warning: Failed to preprocess speaker images: %v", err)
-	}
-	events = types.EventsYAML(eventsSlice)
-
 	for _, event := range events {
 		if fmt.Sprintf("%d", event.ID) == eventID {
+			// Only preprocess speaker images for the specific event we need
+			singleEventSlice := []types.Event{event}
+			if err = utils.PreprocessEventSpeakerImages(&singleEventSlice); err != nil {
+				log.Printf("Warning: Failed to preprocess speaker images: %v", err)
+			}
+			// Update the event with processed speaker image paths
+			event = singleEventSlice[0]
+
 			eventData := &types.EventData{}
 
 			if len(event.Talks) > 0 {
