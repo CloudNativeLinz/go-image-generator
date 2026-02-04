@@ -1,6 +1,6 @@
 {
   "background": {
-    "image": "assets/backgrounds/meetup-background.jpg",
+    "image": "assets/backgrounds/test.jpg",
     "position": {
       "x": 0,
       "y": 0
@@ -12,61 +12,53 @@
   },
   "speaker1title": {
     "font": "assets/fonts/LBRITE.TTF",
-    "fontSize": 40,
+    "fontSize": 42,
     "color": "#000000",
     "position": {
-      "x": 0.33,
-      "y": 0.50
+      "x": 0.225,
+      "y": 0.45
     },
-    "boxWidth": 0.20,
+    "boxWidth": 0.25,
     "text": "First talk title - TBD"
   },
   "speaker1name": {
     "font": "assets/fonts/LBRITED.TTF",
-    "fontSize": 32,
+    "fontSize": 34,
     "color": "#000000",
-    "position": {
-      "x": 0.33,
-      "y": 0.50
-    },
-    "boxWidth": 0.20,
+    "boxWidth": 0.25,
     "text": "TBD"
   },
   "speaker1image": {
     "position": {
-      "x": 0.245,
-      "y": 0.455
+      "x": 0.13,
+      "y": 0.4
     },
-    "size": 310
+    "size": 380
   },
   "speaker2title": {
     "font": "assets/fonts/LBRITE.TTF",
-    "fontSize": 40,
+    "fontSize": 42,
     "color": "#000000",
     "position": {
-      "x": 0.733,
-      "y": 0.64
+      "x": 0.68,
+      "y": 0.45
     },
-    "boxWidth": 0.215,
+    "boxWidth": 0.25,
     "text": "Second talk title - TBD"
   },
   "speaker2name": {
     "font": "assets/fonts/LBRITED.TTF",
-    "fontSize": 32,
+    "fontSize": 34,
     "color": "#000000",
-    "position": {
-      "x": 0.73,
-      "y": 0.65
-    },
-    "boxWidth": 0.20,
+    "boxWidth": 0.25,
     "text": "TBD"
   },
   "speaker2image": {
     "position": {
-      "x": 0.655,
-      "y": 0.57
+      "x": 0.588,
+      "y": 0.4
     },
-    "size": 310
+    "size": 380
   },
   "sponsor": {
     "font": "assets/fonts/LBRITE.TTF",
