@@ -1,0 +1,20 @@
+{
+  "name": "go-image-generator",
+  "image": "mcr.microsoft.com/devcontainers/go:1-1.24-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go"
+      ],
+      "settings": {
+        "go.toolsManagement.checkForUpdates": "local",
+        "go.useLanguageServer": true
+      }
+    }
+  },
+  "postCreateCommand": "go mod download",
+  "remoteUser": "vscode"
+}
