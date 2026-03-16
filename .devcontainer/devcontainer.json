@@ -1,6 +1,6 @@
 {
   "name": "go-image-generator",
-  "image": "mcr.microsoft.com/devcontainers/go:1-1.24-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/go:1.25-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
