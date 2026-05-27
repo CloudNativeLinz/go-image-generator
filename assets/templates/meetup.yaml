@@ -63,7 +63,7 @@ elements:
   - id: speaker2_photo
     type: image
     source: "{{ event.talks[1].image | default('') }}"
-    box: { x: 1118, y: 460, w: 310, h: 310 }
+    box: { x: 1100, y: 460, w: 310, h: 310 }
     shape: circle
     fit: cover
 

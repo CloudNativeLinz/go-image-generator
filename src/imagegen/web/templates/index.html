@@ -52,6 +52,22 @@
         border: 1px solid #d5d0c7;
         font-family: inherit;
       }
+      button {
+        width: 100%;
+        margin-top: 1.65rem;
+        padding: 0.7rem 0.9rem;
+        border: 0;
+        border-radius: 10px;
+        background: var(--accent);
+        color: #fff;
+        font-family: "IBM Plex Mono", monospace;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        cursor: pointer;
+      }
+      button:hover {
+        filter: brightness(0.95);
+      }
       .preview {
         margin-top: 1rem;
         background: var(--panel);
@@ -76,7 +92,7 @@
   <body>
     <main>
       <h1>ImageGen Live Preview</h1>
-      <p>Edit your template and this page will refresh the render every two seconds.</p>
+      <p>Choose your options and click Generate Preview to render the selected image.</p>
       <section class="controls">
         <label>
           Event
@@ -99,6 +115,7 @@
             <option value="jpg">jpg</option>
           </select>
         </label>
+        <button id="generate" type="button">Generate Preview</button>
       </section>
       <section class="preview">
         <img id="preview" alt="Rendered preview" />
@@ -112,6 +129,7 @@
       const eventEl = document.getElementById("eventId");
       const widthEl = document.getElementById("width");
       const formatEl = document.getElementById("format");
+      const generateEl = document.getElementById("generate");
 
       function refresh() {
         const params = new URLSearchParams();
@@ -122,12 +140,7 @@
         image.src = `/render?${params.toString()}`;
       }
 
-      eventEl.addEventListener("change", refresh);
-      widthEl.addEventListener("input", refresh);
-      formatEl.addEventListener("change", refresh);
-
-      refresh();
-      setInterval(refresh, 2000);
+      generateEl.addEventListener("click", refresh);
     </script>
   </body>
 </html>
