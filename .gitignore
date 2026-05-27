@@ -1,32 +1,29 @@
-# Ignore Go build artifacts
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
-*.out
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+.cache/
+venv/
+.venv/
 
-# Ignore vendor directory (if not using vendoring)
-vendor/
-
-# Ignore IDE/editor files
+# IDE/editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Ignore OS generated files
+# OS generated files
 .DS_Store
 Thumbs.db
 
-# Ignore coverage files
-coverage.out
+# Generated outputs
+artifacts/*
+!artifacts/.gitkeep
 
-# Ignore logs
+# Local logs
 *.log
-
-# Ignore generated binary files
-go-image-generator
-main
 

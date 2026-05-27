@@ -1,0 +1,68 @@
+PYTHON ?= python3
+PIP ?= $(PYTHON) -m pip
+TEMPLATE ?= assets/templates/meetup.yaml
+EVENTS_FILE ?= _data/events.yml
+OUT_DIR ?= artifacts
+EVENT_ID ?=
+WIDTH ?=
+FORMAT ?= jpg
+HOST ?= 0.0.0.0
+PORT ?= 8000
+
+.DEFAULT_GOAL := help
+
+.PHONY: help install install-dev lint format test list-events generate generate-all preview clean
+
+help:
+	@echo "Available targets:"
+	@echo "  install       Install runtime dependencies"
+	@echo "  install-dev   Install project with dev dependencies"
+	@echo "  lint          Run Ruff linter"
+	@echo "  format        Run Black formatter"
+	@echo "  test          Run pytest"
+	@echo "  list-events   List events from EVENTS_FILE"
+	@echo "  generate      Generate one event image (requires EVENT_ID)"
+	@echo "  generate-all  Generate images for all events"
+	@echo "  preview       Start local preview web app"
+	@echo "  clean         Remove caches and generated artifacts"
+	@echo ""
+	@echo "Common overrides:"
+	@echo "  make generate EVENT_ID=44 WIDTH=550 FORMAT=jpg"
+	@echo "  make generate-all EVENTS_FILE=_data/sample-events.yml"
+	@echo "  make preview EVENT_ID=44 PORT=8000"
+
+install:
+	$(PIP) install --break-system-packages -e .
+
+install-dev:
+	$(PIP) install --break-system-packages -e .[dev]
+
+lint:
+	ruff check src tests
+
+format:
+	black src tests
+
+test:
+	$(PYTHON) -m pytest -q
+
+list-events:
+	imagegen list-events --file $(EVENTS_FILE)
+
+generate:
+	@if [ -z "$(EVENT_ID)" ]; then \
+		echo "EVENT_ID is required. Example: make generate EVENT_ID=44"; \
+		exit 1; \
+	fi
+	imagegen generate --template $(TEMPLATE) --file $(EVENTS_FILE) --out $(OUT_DIR) --id $(EVENT_ID) $(if $(WIDTH),--width $(WIDTH),) --format $(FORMAT)
+
+generate-all:
+	imagegen generate --template $(TEMPLATE) --file $(EVENTS_FILE) --out $(OUT_DIR) $(if $(WIDTH),--width $(WIDTH),) --format $(FORMAT)
+
+preview:
+	imagegen preview --template $(TEMPLATE) --file $(EVENTS_FILE) $(if $(EVENT_ID),--id $(EVENT_ID),) --host $(HOST) --port $(PORT)
+
+clean:
+	rm -rf .pytest_cache .ruff_cache .mypy_cache .cache
+	find . -type d -name __pycache__ -prune -exec rm -rf {} +
+	find . -type f -name '*.pyc' -delete

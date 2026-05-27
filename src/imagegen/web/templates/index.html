@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ImageGen Preview</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
+      :root {
+        --bg: #f4f1ea;
+        --ink: #1f1f1f;
+        --accent: #d54317;
+        --panel: rgba(255, 255, 255, 0.86);
+      }
+      body {
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 10% 15%, #ffe9a8 0%, transparent 40%),
+          radial-gradient(circle at 85% 80%, #ffbc99 0%, transparent 45%),
+          var(--bg);
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 1.5rem;
+      }
+      h1 {
+        margin-bottom: 0.25rem;
+      }
+      .controls {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 0.75rem;
+        background: var(--panel);
+        padding: 1rem;
+        border-radius: 16px;
+        box-shadow: 0 16px 40px rgba(31, 31, 31, 0.12);
+      }
+      label {
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+      }
+      select,
+      input {
+        width: 100%;
+        margin-top: 0.35rem;
+        padding: 0.6rem;
+        border-radius: 10px;
+        border: 1px solid #d5d0c7;
+        font-family: inherit;
+      }
+      .preview {
+        margin-top: 1rem;
+        background: var(--panel);
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: 0 16px 40px rgba(31, 31, 31, 0.12);
+      }
+      .preview img {
+        width: 100%;
+        border-radius: 12px;
+      }
+      .meta {
+        margin-top: 0.5rem;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 0.8rem;
+      }
+      a {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>ImageGen Live Preview</h1>
+      <p>Edit your template and this page will refresh the render every two seconds.</p>
+      <section class="controls">
+        <label>
+          Event
+          <select id="eventId">
+            {% for event in events %}
+            <option value="{{ event.id }}" {% if event.id == selected %}selected{% endif %}>
+              {{ event.id }} - {{ event.title }}
+            </option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Width (optional)
+          <input id="width" type="number" placeholder="1200" />
+        </label>
+        <label>
+          Format
+          <select id="format">
+            <option value="png" selected>png</option>
+            <option value="jpg">jpg</option>
+          </select>
+        </label>
+      </section>
+      <section class="preview">
+        <img id="preview" alt="Rendered preview" />
+        <div class="meta">
+          Template: {{ template }}
+        </div>
+      </section>
+    </main>
+    <script>
+      const image = document.getElementById("preview");
+      const eventEl = document.getElementById("eventId");
+      const widthEl = document.getElementById("width");
+      const formatEl = document.getElementById("format");
+
+      function refresh() {
+        const params = new URLSearchParams();
+        params.set("id", eventEl.value);
+        if (widthEl.value) params.set("width", widthEl.value);
+        params.set("format", formatEl.value);
+        params.set("t", Date.now());
+        image.src = `/render?${params.toString()}`;
+      }
+
+      eventEl.addEventListener("change", refresh);
+      widthEl.addEventListener("input", refresh);
+      formatEl.addEventListener("change", refresh);
+
+      refresh();
+      setInterval(refresh, 2000);
+    </script>
+  </body>
+</html>

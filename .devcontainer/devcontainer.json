@@ -1,20 +1,24 @@
 {
   "name": "go-image-generator",
-  "image": "mcr.microsoft.com/devcontainers/go:1.25-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/python:3.12-bookworm",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
   "customizations": {
     "vscode": {
       "extensions": [
-        "golang.go"
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "charliermarsh.ruff"
       ],
       "settings": {
-        "go.toolsManagement.checkForUpdates": "local",
-        "go.useLanguageServer": true
+        "python.defaultInterpreterPath": "/usr/local/bin/python"
       }
     }
   },
-  "postCreateCommand": "go mod download",
+  "postCreateCommand": "pip install -e .[dev]",
+  "forwardPorts": [
+    8000
+  ],
   "remoteUser": "vscode"
 }
