@@ -27,3 +27,5 @@ artifacts/*
 # Local logs
 *.log
 
+# Environment variables
+.env
