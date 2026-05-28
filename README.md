@@ -53,6 +53,35 @@ Render PNG:
 imagegen generate --template assets/templates/meetup.yaml --format png
 ```
 
+### Generate full social bundle
+
+Render meetup image, one speaker card per talk, and LinkedIn draft copy:
+
+```bash
+imagegen generate-bundle \
+   --template assets/templates/meetup.yaml \
+   --speaker-template assets/templates/speaker.yaml \
+   --id 44
+```
+
+Output is written to `artifacts/<event-id>/` and includes:
+
+- `meetup.jpg` or `meetup.png`
+- `speaker-<n>.jpg` or `speaker-<n>.png`
+- `social.json` (meetup + per-talk LinkedIn drafts)
+
+If Azure OpenAI is configured, social copy uses the deployed model. Otherwise, rule-based fallback copy is generated.
+
+Set environment variables for Azure OpenAI:
+
+```bash
+export AZURE_OPENAI_ENDPOINT="https://<resource>.openai.azure.com"
+export AZURE_OPENAI_API_KEY="<api-key>"
+export AZURE_OPENAI_DEPLOYMENT="<deployment-name>"
+# optional
+export AZURE_OPENAI_API_VERSION="2024-06-01"
+```
+
 ### List events
 
 ```bash
@@ -66,6 +95,15 @@ imagegen preview --template assets/templates/meetup.yaml --id 44
 ```
 
 Preview runs on `http://localhost:8000` by default.
+
+The web UI now supports:
+
+- social-first studio workflow (event context, action board, drafts editor, assets panel)
+- separate generation actions: social only, images only, or full bundle
+- editable LinkedIn meetup and per-talk drafts with CTA fields
+- regenerate actions for meetup and individual talk drafts
+- save edited drafts to `artifacts/<event-id>/social-edited.json`
+- load existing generated bundles from disk and preview/download image assets
 
 ## Template Format
 

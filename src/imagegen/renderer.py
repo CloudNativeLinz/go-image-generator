@@ -133,6 +133,7 @@ def render_event(
     width: int | None = None,
     output_format: str = "jpg",
     cache_dir: str = ".cache/images",
+    extra_context: dict[str, Any] | None = None,
 ) -> Image.Image:
     background = Image.open(template.background).convert("RGBA")
 
@@ -148,6 +149,8 @@ def render_event(
 
     env = _jinja_env()
     context = {"event": event.model_dump()}
+    if extra_context:
+        context.update(extra_context)
     draw = ImageDraw.Draw(canvas)
 
     default_font = template.defaults.font or ""

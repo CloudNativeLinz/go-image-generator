@@ -1,0 +1,69 @@
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+from .config import Event, GeneratedBundle, ImageBundle
+from .loader import load_template
+from .renderer import render_event
+from .social import generate_social_bundle
+
+
+def _save_image(image, destination: Path, output_format: str) -> str:
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    pil_format = "PNG" if output_format == "png" else "JPEG"
+    image.save(destination, format=pil_format, quality=95)
+    return destination.as_posix()
+
+
+def generate_event_bundle(
+    event: Event,
+    *,
+    meetup_template_path: str,
+    speaker_template_path: str,
+    output_dir: str = "artifacts",
+    width: int | None = None,
+    output_format: str = "jpg",
+    include_social: bool = True,
+) -> GeneratedBundle:
+    fmt = output_format.lower()
+    if fmt not in {"jpg", "png"}:
+        raise ValueError("output_format must be jpg or png")
+
+    meetup_template = load_template(meetup_template_path)
+    speaker_template = load_template(speaker_template_path)
+
+    event_dir = Path(output_dir) / str(event.id)
+
+    meetup_image = render_event(template=meetup_template, event=event, width=width, output_format=fmt)
+    meetup_destination = event_dir / f"meetup.{fmt}"
+    meetup_path = _save_image(meetup_image, meetup_destination, fmt)
+
+    speaker_paths: list[str] = []
+    for index, _talk in enumerate(event.talks):
+        speaker_image = render_event(
+            template=speaker_template,
+            event=event,
+            width=width,
+            output_format=fmt,
+            extra_context={"talk_index": index},
+        )
+        speaker_destination = event_dir / f"speaker-{index + 1}.{fmt}"
+        speaker_paths.append(_save_image(speaker_image, speaker_destination, fmt))
+
+    social = generate_social_bundle(event) if include_social else None
+
+    if social is not None:
+        social_destination = event_dir / "social.json"
+        social_destination.parent.mkdir(parents=True, exist_ok=True)
+        social_destination.write_text(
+            json.dumps(social.model_dump(by_alias=True), ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+
+    return GeneratedBundle(
+        event_id=event.id,
+        output_dir=event_dir.as_posix(),
+        images=ImageBundle(meetup_image=meetup_path, speaker_images=speaker_paths),
+        social=social,
+    )

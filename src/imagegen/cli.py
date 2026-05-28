@@ -5,6 +5,7 @@ from pathlib import Path
 import typer
 import uvicorn
 
+from .bundle import generate_event_bundle
 from .loader import find_event, load_events, load_template
 from .renderer import render_event
 from .web.app import create_app
@@ -83,6 +84,41 @@ def preview(
 ) -> None:
     app_instance = create_app(template_path=template, events_file=file, initial_event_id=id)
     uvicorn.run(app_instance, host=host, port=port)
+
+
+@app.command("generate-bundle")
+def generate_bundle(
+    template: str = typer.Option(..., help="Path to meetup YAML template"),
+    speaker_template: str = typer.Option(
+        "assets/templates/speaker.yaml",
+        "--speaker-template",
+        help="Path to speaker YAML template",
+    ),
+    id: int | None = typer.Option(None, "--id", help="Single event ID to render"),
+    file: str = typer.Option("_data/events.yml", "--file", help="Path to events YAML"),
+    out: str = typer.Option("artifacts", "--out", help="Output directory"),
+    width: int | None = typer.Option(None, "--width", help="Optional output width"),
+    format: str = typer.Option("jpg", "--format", help="Output format: jpg or png"),
+    no_social: bool = typer.Option(False, "--no-social", help="Skip social copy generation"),
+) -> None:
+    fmt = format.lower()
+    if fmt not in {"jpg", "png"}:
+        raise typer.BadParameter("--format must be jpg or png")
+
+    events = load_events(file)
+    selected = [find_event(events, id)] if id is not None else events
+
+    for event in selected:
+        bundle = generate_event_bundle(
+            event,
+            meetup_template_path=template,
+            speaker_template_path=speaker_template,
+            output_dir=out,
+            width=width,
+            output_format=fmt,
+            include_social=not no_social,
+        )
+        typer.echo(f"Bundle ready at {bundle.output_dir}")
 
 
 if __name__ == "__main__":

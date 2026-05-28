@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from datetime import date
+from os import getenv
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, Field, HttpUrl
 
 
 class Talk(BaseModel):
@@ -88,6 +89,74 @@ class RenderRequest(BaseModel):
     event_id: int | None = None
     width: int | None = None
     output_format: Literal["jpg", "png"] = "jpg"
+
+
+class AzureOpenAISettings(BaseModel):
+    endpoint: str
+    api_key: str
+    deployment: str
+    api_version: str = "2024-06-01"
+    temperature: float = 0.7
+    max_tokens: int = 900
+
+    @classmethod
+    def from_env(cls) -> AzureOpenAISettings | None:
+        endpoint = getenv("AZURE_OPENAI_ENDPOINT", "").strip()
+        api_key = getenv("AZURE_OPENAI_API_KEY", "").strip()
+        deployment = getenv("AZURE_OPENAI_DEPLOYMENT", "").strip()
+
+        if not endpoint or not api_key or not deployment:
+            return None
+
+        return cls(
+            endpoint=endpoint,
+            api_key=api_key,
+            deployment=deployment,
+            api_version=getenv("AZURE_OPENAI_API_VERSION", "2024-06-01").strip() or "2024-06-01",
+            temperature=float(getenv("IMAGEGEN_LLM_TEMPERATURE", "0.7")),
+            max_tokens=int(getenv("IMAGEGEN_LLM_MAX_TOKENS", "900")),
+        )
+
+
+class CTAVariants(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    register_cta: str = Field(validation_alias="register", serialization_alias="register")
+    attend: str
+    recap: str
+
+
+class MeetupPostDraft(BaseModel):
+    post: str
+    cta_variants: CTAVariants
+
+
+class TalkPostDraft(BaseModel):
+    talk_index: int
+    title: str
+    speaker: str
+    post: str
+    cta_variants: CTAVariants
+
+
+class SocialContentBundle(BaseModel):
+    platform: Literal["linkedin"] = "linkedin"
+    tone: str = "professional and friendly"
+    generated_with: Literal["azure-openai", "rules"] = "rules"
+    meetup: MeetupPostDraft
+    talks: list[TalkPostDraft] = Field(default_factory=list)
+
+
+class ImageBundle(BaseModel):
+    meetup_image: str | None = None
+    speaker_images: list[str] = Field(default_factory=list)
+
+
+class GeneratedBundle(BaseModel):
+    event_id: int
+    output_dir: str
+    images: ImageBundle
+    social: SocialContentBundle | None = None
 
 
 ContextDict = dict[str, Any]

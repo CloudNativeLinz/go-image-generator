@@ -3,144 +3,766 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ImageGen Preview</title>
+    <title>Social Command Wall</title>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
+      @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
+
       :root {
-        --bg: #f4f1ea;
-        --ink: #1f1f1f;
-        --accent: #d54317;
-        --panel: rgba(255, 255, 255, 0.86);
+        --bg: #efe9df;
+        --ink: #1f221d;
+        --muted: #63665c;
+        --line: #d8d0c3;
+        --panel: #fffdf7;
+        --panel-strong: #f8f3ea;
+        --brand: #0f4d6d;
+        --brand-2: #d85d2f;
+        --ok: #1d7b60;
       }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         margin: 0;
-        font-family: "Space Grotesk", sans-serif;
         color: var(--ink);
+        font-family: "Outfit", sans-serif;
         background:
-          radial-gradient(circle at 10% 15%, #ffe9a8 0%, transparent 40%),
-          radial-gradient(circle at 85% 80%, #ffbc99 0%, transparent 45%),
+          radial-gradient(circle at 6% 10%, rgba(216, 93, 47, 0.25), transparent 34%),
+          radial-gradient(circle at 88% 8%, rgba(15, 77, 109, 0.21), transparent 40%),
           var(--bg);
       }
-      main {
-        max-width: 1100px;
+
+      .app {
+        max-width: 1600px;
         margin: 0 auto;
-        padding: 1.5rem;
-      }
-      h1 {
-        margin-bottom: 0.25rem;
-      }
-      .controls {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 0.75rem;
-        background: var(--panel);
         padding: 1rem;
-        border-radius: 16px;
-        box-shadow: 0 16px 40px rgba(31, 31, 31, 0.12);
       }
+
+      .top {
+        border-radius: 18px;
+        padding: 1rem;
+        background: linear-gradient(120deg, var(--brand) 0%, #2a6a8b 50%, var(--brand-2) 100%);
+        color: #fff;
+        box-shadow: 0 16px 38px rgba(19, 25, 33, 0.25);
+      }
+
+      .top h1 {
+        margin: 0;
+        font-size: 1.6rem;
+      }
+
+      .top p {
+        margin: 0.3rem 0 0;
+        opacity: 0.96;
+      }
+
+      .wall {
+        margin-top: 1rem;
+        display: grid;
+        grid-template-columns: 360px minmax(540px, 1fr) 460px;
+        gap: 1rem;
+        align-items: start;
+      }
+
+      .card {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        padding: 1rem;
+        box-shadow: 0 10px 24px rgba(25, 30, 38, 0.08);
+      }
+
+      .card h2,
+      .card h3 {
+        margin: 0;
+      }
+
+      .card h2 {
+        font-size: 1.05rem;
+      }
+
+      .card h3 {
+        font-size: 0.95rem;
+      }
+
+      .sub {
+        margin: 0.35rem 0 0;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+      }
+
       label {
         font-family: "IBM Plex Mono", monospace;
-        font-size: 0.8rem;
         text-transform: uppercase;
+        font-size: 0.72rem;
+        letter-spacing: 0.03em;
       }
+
       select,
-      input {
-        width: 100%;
+      input,
+      textarea {
         margin-top: 0.35rem;
-        padding: 0.6rem;
-        border-radius: 10px;
-        border: 1px solid #d5d0c7;
-        font-family: inherit;
-      }
-      button {
         width: 100%;
-        margin-top: 1.65rem;
-        padding: 0.7rem 0.9rem;
-        border: 0;
+        border: 1px solid #cfcabd;
         border-radius: 10px;
-        background: var(--accent);
-        color: #fff;
-        font-family: "IBM Plex Mono", monospace;
+        padding: 0.6rem 0.65rem;
+        font-family: inherit;
+        font-size: 0.92rem;
+        background: #fff;
+      }
+
+      textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      button {
+        border: none;
+        border-radius: 10px;
+        padding: 0.65rem 0.8rem;
+        font-size: 0.78rem;
+        letter-spacing: 0.03em;
         text-transform: uppercase;
-        letter-spacing: 0.04em;
+        font-family: "IBM Plex Mono", monospace;
         cursor: pointer;
       }
-      button:hover {
-        filter: brightness(0.95);
+
+      .btn-primary {
+        color: #fff;
+        background: linear-gradient(130deg, var(--brand-2), #c6481b);
       }
-      .preview {
-        margin-top: 1rem;
-        background: var(--panel);
-        border-radius: 16px;
-        padding: 1rem;
-        box-shadow: 0 16px 40px rgba(31, 31, 31, 0.12);
+
+      .btn-secondary {
+        color: #fff;
+        background: linear-gradient(130deg, var(--brand), #1f4057);
       }
-      .preview img {
-        width: 100%;
+
+      .btn-light {
+        color: #2b4457;
+        background: #dde7ee;
+      }
+
+      .action-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+      }
+
+      .event-meta,
+      .talk-list {
+        margin-top: 0.7rem;
+        background: var(--panel-strong);
+        border: 1px solid #dfd6c9;
         border-radius: 12px;
+        padding: 0.7rem;
       }
-      .meta {
-        margin-top: 0.5rem;
-        font-family: "IBM Plex Mono", monospace;
+
+      .event-meta p {
+        margin: 0.3rem 0;
+        font-size: 0.82rem;
+      }
+
+      .talk-pill {
+        display: block;
+        margin: 0.32rem 0;
+        padding: 0.45rem 0.55rem;
+        border-radius: 9px;
+        background: #fff;
+        border: 1px solid #ddd8c8;
         font-size: 0.8rem;
       }
-      a {
-        color: var(--accent);
+
+      .status {
+        margin-top: 0.8rem;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+
+      .status.ok {
+        color: var(--ok);
+      }
+
+      .stack {
+        display: grid;
+        gap: 0.9rem;
+      }
+
+      .draft {
+        border: 1px solid #dfd7c9;
+        border-radius: 12px;
+        padding: 0.75rem;
+        background: #fff;
+      }
+
+      .cta-grid {
+        margin-top: 0.45rem;
+        display: grid;
+        gap: 0.45rem;
+      }
+
+      .inline-actions {
+        margin-top: 0.55rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+      }
+
+      .artifact-grid {
+        margin-top: 0.8rem;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.55rem;
+      }
+
+      .asset-card {
+        border: 1px solid #dcd5c6;
+        border-radius: 12px;
+        padding: 0.45rem;
+        background: #fff;
+      }
+
+      .asset-card img {
+        width: 100%;
+        border-radius: 8px;
+        border: 1px solid #cbc5b8;
+        background: #efeade;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
+      }
+
+      .asset-foot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 0.45rem;
+        padding-top: 0.45rem;
+        font-size: 0.8rem;
+      }
+
+      .asset-foot a {
+        color: #1e4f73;
+      }
+
+      .mono {
+        font-family: "IBM Plex Mono", monospace;
+      }
+
+      .surface-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+      }
+
+      .subtle {
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+
+      @media (max-width: 1420px) {
+        .wall {
+          grid-template-columns: 1fr;
+        }
+
+        .artifact-grid {
+          grid-template-columns: repeat(3, 1fr);
+        }
+      }
+
+      @media (max-width: 860px) {
+        .grid-2,
+        .action-grid,
+        .artifact-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
   <body>
-    <main>
-      <h1>ImageGen Live Preview</h1>
-      <p>Choose your options and click Generate Preview to render the selected image.</p>
-      <section class="controls">
-        <label>
-          Event
-          <select id="eventId">
-            {% for event in events %}
-            <option value="{{ event.id }}" {% if event.id == selected %}selected{% endif %}>
-              {{ event.id }} - {{ event.title }}
-            </option>
-            {% endfor %}
-          </select>
-        </label>
-        <label>
-          Width (optional)
-          <input id="width" type="number" placeholder="1200" />
-        </label>
-        <label>
-          Format
-          <select id="format">
-            <option value="png" selected>png</option>
-            <option value="jpg">jpg</option>
-          </select>
-        </label>
-        <button id="generate" type="button">Generate Preview</button>
+    <main class="app">
+      <section class="top">
+        <h1>Social Command Wall</h1>
+        <p>Every core artifact visible at once: inputs, generated images, meetup copy, and per-talk drafts.</p>
       </section>
-      <section class="preview">
-        <img id="preview" alt="Rendered preview" />
-        <div class="meta">
-          Template: {{ template }}
-        </div>
+
+      <section class="wall">
+        <aside class="card">
+          <div class="surface-title">
+            <h2>Control Deck</h2>
+            <span class="subtle mono">LinkedIn mode</span>
+          </div>
+          <p class="sub">Configure generation and keep track of event details.</p>
+
+          <div class="grid-2" style="margin-top: 0.7rem;">
+            <label>
+              Event
+              <select id="eventId">
+                {% for event in events %}
+                <option value="{{ event.id }}" {% if event.id == selected %}selected{% endif %}>
+                  {{ event.id }} - {{ event.title }}
+                </option>
+                {% endfor %}
+              </select>
+            </label>
+            <label>
+              Width (optional)
+              <input id="width" type="number" min="320" placeholder="1080" />
+            </label>
+            <label style="grid-column: 1 / -1;">
+              Image format
+              <select id="format">
+                <option value="jpg" selected>jpg</option>
+                <option value="png">png</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="action-grid">
+            <button id="btnGenerateSocial" class="btn-secondary" type="button">Generate Social</button>
+            <button id="btnGenerateImages" class="btn-secondary" type="button">Generate Images</button>
+            <button id="btnGenerateBundle" class="btn-primary" type="button">Generate All</button>
+            <button id="btnLoadSnapshot" class="btn-light" type="button">Load Existing</button>
+          </div>
+
+          <div class="event-meta" id="eventMeta"></div>
+          <div class="talk-list" id="talkList"></div>
+          <div class="status" id="status">Ready.</div>
+        </aside>
+
+        <section class="card">
+          <div class="surface-title">
+            <h2>Artifact Wall</h2>
+            <span class="subtle" id="artifactCount">0 images</span>
+          </div>
+          <p class="sub">All generated images shown simultaneously for quick review.</p>
+
+          <div class="artifact-grid" id="artifactGrid"></div>
+          <p class="sub" style="margin-top: 0.7rem;">Template: <span class="mono">{{ template }}</span></p>
+          <p class="sub">Speaker template: <span class="mono">{{ speaker_template }}</span></p>
+        </section>
+
+        <section class="card">
+          <div class="surface-title">
+            <h2>Draft Wall</h2>
+            <button id="btnSaveDrafts" class="btn-primary" type="button">Save Drafts</button>
+          </div>
+          <p class="sub">Meetup and talk copy remain visible together while you edit.</p>
+
+          <div class="stack">
+            <article class="draft">
+            <h3>Meetup Announcement</h3>
+            <textarea id="meetupPost" placeholder="Generate social content to start editing..."></textarea>
+            <div class="cta-grid">
+              <label>CTA Register <input id="meetupRegister" type="text" /></label>
+              <label>CTA Attend <input id="meetupAttend" type="text" /></label>
+              <label>CTA Recap <input id="meetupRecap" type="text" /></label>
+            </div>
+            <div class="inline-actions">
+              <button id="btnRegenMeetup" class="btn-light" type="button">Regenerate Meetup</button>
+            </div>
+            </article>
+
+            <div id="talkEditors" class="stack"></div>
+          </div>
+        </section>
       </section>
     </main>
-    <script>
-      const image = document.getElementById("preview");
-      const eventEl = document.getElementById("eventId");
-      const widthEl = document.getElementById("width");
-      const formatEl = document.getElementById("format");
-      const generateEl = document.getElementById("generate");
 
-      function refresh() {
-        const params = new URLSearchParams();
-        params.set("id", eventEl.value);
-        if (widthEl.value) params.set("width", widthEl.value);
-        params.set("format", formatEl.value);
-        params.set("t", Date.now());
-        image.src = `/render?${params.toString()}`;
+    <script>
+      const state = {
+        eventId: Number({{ selected or 0 }}),
+        social: null,
+        snapshot: null,
+      };
+
+      const dom = {
+        eventId: document.getElementById("eventId"),
+        width: document.getElementById("width"),
+        format: document.getElementById("format"),
+        status: document.getElementById("status"),
+        eventMeta: document.getElementById("eventMeta"),
+        talkList: document.getElementById("talkList"),
+        meetupPost: document.getElementById("meetupPost"),
+        meetupRegister: document.getElementById("meetupRegister"),
+        meetupAttend: document.getElementById("meetupAttend"),
+        meetupRecap: document.getElementById("meetupRecap"),
+        talkEditors: document.getElementById("talkEditors"),
+        artifactGrid: document.getElementById("artifactGrid"),
+        artifactCount: document.getElementById("artifactCount"),
+        btnGenerateSocial: document.getElementById("btnGenerateSocial"),
+        btnGenerateImages: document.getElementById("btnGenerateImages"),
+        btnGenerateBundle: document.getElementById("btnGenerateBundle"),
+        btnLoadSnapshot: document.getElementById("btnLoadSnapshot"),
+        btnRegenMeetup: document.getElementById("btnRegenMeetup"),
+        btnSaveDrafts: document.getElementById("btnSaveDrafts"),
+      };
+
+      function setStatus(text, ok = false) {
+        dom.status.textContent = text;
+        dom.status.classList.toggle("ok", ok);
       }
 
-      generateEl.addEventListener("click", refresh);
+      async function apiGet(url) {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+        return response.json();
+      }
+
+      async function apiPost(url, body) {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+        return response.json();
+      }
+
+      function bodyForGeneration(includeSocial) {
+        const body = {
+          id: Number(dom.eventId.value),
+          template: "{{ template }}",
+          speaker_template: "{{ speaker_template }}",
+          format: dom.format.value,
+          out: "artifacts",
+          include_social: includeSocial,
+        };
+        if (dom.width.value) {
+          body.width = Number(dom.width.value);
+        }
+        return body;
+      }
+
+      async function loadEventInfo() {
+        const eventId = Number(dom.eventId.value);
+        state.eventId = eventId;
+        const event = await apiGet(`/api/events/${eventId}`);
+        dom.eventMeta.innerHTML = [
+          `<p><strong>${event.title || "Untitled"}</strong></p>`,
+          `<p>Date: ${event.date || "n/a"}</p>`,
+          `<p>Host: ${event.host || "n/a"}</p>`,
+          `<p>Talks: ${(event.talks || []).length}</p>`,
+        ].join("");
+
+        dom.talkList.innerHTML = "";
+        (event.talks || []).forEach((talk, index) => {
+          const item = document.createElement("div");
+          item.className = "talk-pill";
+          item.textContent = `${index + 1}. ${talk.title || "Talk title"} - ${talk.speaker || "TBA"}`;
+          dom.talkList.appendChild(item);
+        });
+      }
+
+      function ensureSocialState() {
+        if (state.social) {
+          return;
+        }
+        state.social = {
+          meetup: { post: "", cta_variants: { register: "", attend: "", recap: "" } },
+          talks: [],
+        };
+      }
+
+      function bindMeetupEditors() {
+        ensureSocialState();
+        dom.meetupPost.value = state.social.meetup?.post || "";
+        dom.meetupRegister.value = state.social.meetup?.cta_variants?.register || "";
+        dom.meetupAttend.value = state.social.meetup?.cta_variants?.attend || "";
+        dom.meetupRecap.value = state.social.meetup?.cta_variants?.recap || "";
+
+        const sync = () => {
+          ensureSocialState();
+          state.social.meetup = {
+            post: dom.meetupPost.value,
+            cta_variants: {
+              register: dom.meetupRegister.value,
+              attend: dom.meetupAttend.value,
+              recap: dom.meetupRecap.value,
+            },
+          };
+        };
+
+        dom.meetupPost.oninput = sync;
+        dom.meetupRegister.oninput = sync;
+        dom.meetupAttend.oninput = sync;
+        dom.meetupRecap.oninput = sync;
+      }
+
+      function renderTalkEditors() {
+        dom.talkEditors.innerHTML = "";
+        const talks = state.social?.talks || [];
+
+        talks.forEach((talk, index) => {
+          const card = document.createElement("article");
+          card.className = "draft";
+
+          const title = document.createElement("h3");
+          title.textContent = `Talk ${index + 1}: ${talk.title || "Talk"}`;
+
+          const post = document.createElement("textarea");
+          post.value = talk.post || "";
+          post.placeholder = "Talk-specific LinkedIn draft";
+
+          const ctaWrap = document.createElement("div");
+          ctaWrap.className = "cta-grid";
+
+          const register = document.createElement("input");
+          register.type = "text";
+          register.value = talk.cta_variants?.register || "";
+          const attend = document.createElement("input");
+          attend.type = "text";
+          attend.value = talk.cta_variants?.attend || "";
+          const recap = document.createElement("input");
+          recap.type = "text";
+          recap.value = talk.cta_variants?.recap || "";
+
+          const registerLabel = document.createElement("label");
+          registerLabel.textContent = "CTA Register";
+          registerLabel.appendChild(register);
+
+          const attendLabel = document.createElement("label");
+          attendLabel.textContent = "CTA Attend";
+          attendLabel.appendChild(attend);
+
+          const recapLabel = document.createElement("label");
+          recapLabel.textContent = "CTA Recap";
+          recapLabel.appendChild(recap);
+
+          ctaWrap.appendChild(registerLabel);
+          ctaWrap.appendChild(attendLabel);
+          ctaWrap.appendChild(recapLabel);
+
+          const actions = document.createElement("div");
+          actions.className = "inline-actions";
+
+          const regenerate = document.createElement("button");
+          regenerate.type = "button";
+          regenerate.className = "btn-light";
+          regenerate.textContent = "Regenerate Talk";
+
+          regenerate.addEventListener("click", async () => {
+            try {
+              setStatus(`Regenerating talk ${index + 1} draft...`);
+              const data = await apiPost("/api/regenerate-social", {
+                id: state.eventId,
+                kind: "talk",
+                talk_index: index,
+              });
+              state.social.talks[index] = data.draft;
+              renderTalkEditors();
+              setStatus(`Talk ${index + 1} draft regenerated.`, true);
+            } catch (error) {
+              setStatus(`Talk regeneration failed: ${String(error).slice(0, 120)}`);
+            }
+          });
+
+          const syncTalk = () => {
+            state.social.talks[index] = {
+              ...state.social.talks[index],
+              post: post.value,
+              cta_variants: {
+                register: register.value,
+                attend: attend.value,
+                recap: recap.value,
+              },
+            };
+          };
+
+          post.addEventListener("input", syncTalk);
+          register.addEventListener("input", syncTalk);
+          attend.addEventListener("input", syncTalk);
+          recap.addEventListener("input", syncTalk);
+
+          actions.appendChild(regenerate);
+          card.appendChild(title);
+          card.appendChild(post);
+          card.appendChild(ctaWrap);
+          card.appendChild(actions);
+          dom.talkEditors.appendChild(card);
+        });
+      }
+
+      function applySocial(social) {
+        state.social = social || null;
+        bindMeetupEditors();
+        renderTalkEditors();
+      }
+
+      function renderAssets(snapshot) {
+        state.snapshot = snapshot || null;
+        dom.artifactGrid.innerHTML = "";
+
+        const images = snapshot?.images || [];
+        dom.artifactCount.textContent = `${images.length} image${images.length === 1 ? "" : "s"}`;
+
+        images.forEach((asset) => {
+          const card = document.createElement("div");
+          card.className = "asset-card";
+
+          const image = document.createElement("img");
+          image.src = `${asset.url}?t=${Date.now()}`;
+          image.alt = asset.name;
+
+          const foot = document.createElement("div");
+          foot.className = "asset-foot";
+
+          const name = document.createElement("span");
+          name.textContent = asset.name;
+
+          const link = document.createElement("a");
+          link.href = asset.url;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = "Open";
+
+          foot.appendChild(name);
+          foot.appendChild(link);
+          card.appendChild(image);
+          card.appendChild(foot);
+          dom.artifactGrid.appendChild(card);
+        });
+      }
+
+      async function loadSnapshot() {
+        const snapshot = await apiGet(`/api/bundle/${state.eventId}?out=artifacts`);
+        renderAssets(snapshot);
+        if (snapshot.social) {
+          applySocial(snapshot.social);
+          setStatus("Loaded existing bundle and social drafts.", true);
+        } else {
+          setStatus("Loaded existing image assets.", true);
+        }
+      }
+
+      async function generateSocialOnly() {
+        setStatus("Generating social drafts...");
+        const response = await apiPost("/api/generate-social", { id: state.eventId });
+        applySocial(response.social);
+        setStatus("Social drafts generated.", true);
+      }
+
+      async function generateImagesOnly() {
+        setStatus("Generating meetup and speaker images...");
+        const response = await apiPost("/api/generate-images", bodyForGeneration(false));
+        renderAssets(response.snapshot);
+        setStatus("Images generated.", true);
+      }
+
+      async function generateFullBundle() {
+        setStatus("Generating full social studio bundle...");
+        const response = await apiPost("/api/generate-bundle", bodyForGeneration(true));
+        if (response.social) {
+          applySocial(response.social);
+        }
+        if (response.snapshot) {
+          renderAssets(response.snapshot);
+        }
+        setStatus("Bundle generated: drafts + images are ready.", true);
+      }
+
+      async function regenerateMeetup() {
+        setStatus("Regenerating meetup draft...");
+        const response = await apiPost("/api/regenerate-social", { id: state.eventId, kind: "meetup" });
+        ensureSocialState();
+        state.social.meetup = response.draft;
+        bindMeetupEditors();
+        setStatus("Meetup draft regenerated.", true);
+      }
+
+      async function saveDrafts() {
+        ensureSocialState();
+        setStatus("Saving social drafts...");
+        await apiPost("/api/save-social", {
+          id: state.eventId,
+          out: "artifacts",
+          social: state.social,
+        });
+        setStatus("Drafts saved to artifacts/<event-id>/social-edited.json", true);
+      }
+
+      async function onEventChange() {
+        try {
+          state.eventId = Number(dom.eventId.value);
+          applySocial(null);
+          renderAssets(null);
+          await loadEventInfo();
+          await loadSnapshot();
+        } catch (error) {
+          setStatus(`Failed to load event context: ${String(error).slice(0, 120)}`);
+        }
+      }
+
+      dom.eventId.addEventListener("change", onEventChange);
+
+      dom.btnGenerateSocial.addEventListener("click", async () => {
+        try {
+          await generateSocialOnly();
+        } catch (error) {
+          setStatus(`Social generation failed: ${String(error).slice(0, 120)}`);
+        }
+      });
+
+      dom.btnGenerateImages.addEventListener("click", async () => {
+        try {
+          await generateImagesOnly();
+        } catch (error) {
+          setStatus(`Image generation failed: ${String(error).slice(0, 120)}`);
+        }
+      });
+
+      dom.btnGenerateBundle.addEventListener("click", async () => {
+        try {
+          await generateFullBundle();
+        } catch (error) {
+          setStatus(`Full bundle generation failed: ${String(error).slice(0, 120)}`);
+        }
+      });
+
+      dom.btnLoadSnapshot.addEventListener("click", async () => {
+        try {
+          await loadSnapshot();
+        } catch (error) {
+          setStatus(`Loading existing bundle failed: ${String(error).slice(0, 120)}`);
+        }
+      });
+
+      dom.btnRegenMeetup.addEventListener("click", async () => {
+        try {
+          await regenerateMeetup();
+        } catch (error) {
+          setStatus(`Meetup regeneration failed: ${String(error).slice(0, 120)}`);
+        }
+      });
+
+      dom.btnSaveDrafts.addEventListener("click", async () => {
+        try {
+          await saveDrafts();
+        } catch (error) {
+          setStatus(`Save failed: ${String(error).slice(0, 120)}`);
+        }
+      });
+
+      (async function init() {
+        state.eventId = Number(dom.eventId.value || state.eventId || 0);
+        try {
+          await loadEventInfo();
+          await loadSnapshot();
+          setStatus("Studio ready.", true);
+        } catch (error) {
+          setStatus(`Initialization failed: ${String(error).slice(0, 120)}`);
+        }
+      })();
     </script>
   </body>
 </html>
