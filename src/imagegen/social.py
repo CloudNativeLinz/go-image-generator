@@ -55,6 +55,16 @@ def _default_cta() -> CTAVariants:
     )
 
 
+def _apply_cta_defaults(bundle: SocialContentBundle, cta_defaults: CTAVariants | None) -> SocialContentBundle:
+    if cta_defaults is None:
+        return bundle
+
+    meetup = bundle.meetup.model_copy(update={"cta_variants": cta_defaults})
+    talks = [talk.model_copy(update={"cta_variants": cta_defaults}) for talk in bundle.talks]
+
+    return bundle.model_copy(update={"meetup": meetup, "talks": talks})
+
+
 def _hashtags(event: Event) -> str:
     host = str(event.host or "Cloud Native Linz").replace(" ", "")
     return f"#CloudNative #Meetup #{host} #LinkedIn"
@@ -179,13 +189,18 @@ def _llm_bundle(event: Event, settings: AzureOpenAISettings) -> SocialContentBun
     return model
 
 
-def generate_social_bundle(event: Event, *, prefer_azure: bool = True) -> SocialContentBundle:
+def generate_social_bundle(
+    event: Event,
+    *,
+    prefer_azure: bool = True,
+    cta_defaults: CTAVariants | None = None,
+) -> SocialContentBundle:
     settings = AzureOpenAISettings.from_env()
 
     if prefer_azure and settings is not None:
         try:
-            return _llm_bundle(event, settings)
+            return _apply_cta_defaults(_llm_bundle(event, settings), cta_defaults)
         except (LLMError, KeyError, ValueError, TypeError, json.JSONDecodeError):
             pass
 
-    return _rules_bundle(event)
+    return _apply_cta_defaults(_rules_bundle(event), cta_defaults)

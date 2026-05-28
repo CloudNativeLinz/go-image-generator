@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .config import Event, GeneratedBundle, ImageBundle
+from .config import CTAVariants, Event, GeneratedBundle, ImageBundle
 from .loader import load_template
 from .renderer import render_event
 from .social import generate_social_bundle
@@ -25,6 +25,7 @@ def generate_event_bundle(
     width: int | None = None,
     output_format: str = "jpg",
     include_social: bool = True,
+    cta_defaults: CTAVariants | None = None,
 ) -> GeneratedBundle:
     fmt = output_format.lower()
     if fmt not in {"jpg", "png"}:
@@ -51,7 +52,7 @@ def generate_event_bundle(
         speaker_destination = event_dir / f"speaker-{index + 1}.{fmt}"
         speaker_paths.append(_save_image(speaker_image, speaker_destination, fmt))
 
-    social = generate_social_bundle(event) if include_social else None
+    social = generate_social_bundle(event, cta_defaults=cta_defaults) if include_social else None
 
     if social is not None:
         social_destination = event_dir / "social.json"

@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from typing import Literal
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from starlette.requests import Request
 
 from ..bundle import generate_event_bundle
+from ..config import CTAVariants
 from ..loader import find_event, load_events, load_template
 from ..renderer import render_event
 from ..social import generate_social_bundle
@@ -21,7 +23,7 @@ class BundleRequest(BaseModel):
     template: str | None = None
     speaker_template: str = "assets/templates/speaker.yaml"
     width: int | None = None
-    format: str = "jpg"
+    format: str | None = None
     out: str = "artifacts"
     include_social: bool = True
 
@@ -40,6 +42,46 @@ class SaveSocialRequest(BaseModel):
     id: int
     social: dict
     out: str = "artifacts"
+
+
+class StudioSettings(BaseModel):
+    cta_register: str = "Reserve your spot today."
+    cta_attend: str = "Join us at the meetup and bring your questions."
+    cta_recap: str = "Follow for recap highlights after the event."
+    width: int | None = Field(default=None, ge=320)
+    image_format: Literal["jpg", "png"] = "jpg"
+
+
+def _default_settings() -> StudioSettings:
+    return StudioSettings()
+
+
+def _load_settings(path: Path) -> StudioSettings:
+    if not path.exists() or not path.is_file():
+        return _default_settings()
+
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError, TypeError):
+        return _default_settings()
+
+    try:
+        return StudioSettings.model_validate(payload)
+    except Exception:
+        return _default_settings()
+
+
+def _save_settings(path: Path, settings: StudioSettings) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(settings.model_dump(), ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _settings_cta_defaults(settings: StudioSettings) -> CTAVariants:
+    return CTAVariants(
+        register_cta=settings.cta_register,
+        attend=settings.cta_attend,
+        recap=settings.cta_recap,
+    )
 
 
 def _event_summary(event) -> dict:
@@ -96,6 +138,7 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
     app = FastAPI(title="imagegen social studio")
     artifacts_dir = Path("artifacts")
     artifacts_dir.mkdir(parents=True, exist_ok=True)
+    settings_file = artifacts_dir / "studio-settings.json"
     app.mount("/artifacts", StaticFiles(directory=str(artifacts_dir)), name="artifacts")
 
     templates_dir = Path(__file__).parent / "templates"
@@ -116,6 +159,27 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
                 "events_file": events_file,
             },
         )
+
+    @app.get("/settings", response_class=HTMLResponse)
+    async def settings_page(request: Request) -> HTMLResponse:
+        settings = _load_settings(settings_file)
+        return templates.TemplateResponse(
+            request=request,
+            name="settings.html",
+            context={
+                "settings": settings.model_dump(),
+            },
+        )
+
+    @app.get("/api/settings")
+    async def get_settings_api() -> JSONResponse:
+        settings = _load_settings(settings_file)
+        return JSONResponse({"settings": settings.model_dump()})
+
+    @app.post("/api/settings")
+    async def save_settings_api(payload: StudioSettings) -> JSONResponse:
+        _save_settings(settings_file, payload)
+        return JSONResponse({"saved": True, "settings": payload.model_dump()})
 
     @app.get("/api/events")
     async def list_events_api() -> JSONResponse:
@@ -159,7 +223,8 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
 
     @app.post("/api/generate-bundle")
     async def generate_bundle_api(payload: BundleRequest) -> JSONResponse:
-        fmt = payload.format.lower()
+        settings = _load_settings(settings_file)
+        fmt = (payload.format or settings.image_format).lower()
         if fmt not in {"png", "jpg"}:
             raise HTTPException(status_code=400, detail="format must be png or jpg")
 
@@ -170,9 +235,10 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
             meetup_template_path=payload.template or template_path,
             speaker_template_path=payload.speaker_template,
             output_dir=payload.out,
-            width=payload.width,
+            width=payload.width if payload.width is not None else settings.width,
             output_format=fmt,
             include_social=payload.include_social,
+            cta_defaults=_settings_cta_defaults(settings),
         )
         response = bundle.model_dump(by_alias=True)
         response["snapshot"] = _bundle_snapshot(event.id, out_dir=payload.out)
@@ -182,7 +248,8 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
     async def generate_social_api(payload: SocialRequest) -> JSONResponse:
         events = load_events(events_file)
         event = find_event(events, payload.id)
-        social = generate_social_bundle(event)
+        settings = _load_settings(settings_file)
+        social = generate_social_bundle(event, cta_defaults=_settings_cta_defaults(settings))
         return JSONResponse(
             {
                 "event_id": event.id,
@@ -192,7 +259,8 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
 
     @app.post("/api/generate-images")
     async def generate_images_api(payload: BundleRequest) -> JSONResponse:
-        fmt = payload.format.lower()
+        settings = _load_settings(settings_file)
+        fmt = (payload.format or settings.image_format).lower()
         if fmt not in {"png", "jpg"}:
             raise HTTPException(status_code=400, detail="format must be png or jpg")
 
@@ -203,7 +271,7 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
             meetup_template_path=payload.template or template_path,
             speaker_template_path=payload.speaker_template,
             output_dir=payload.out,
-            width=payload.width,
+            width=payload.width if payload.width is not None else settings.width,
             output_format=fmt,
             include_social=False,
         )
@@ -233,7 +301,8 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
     async def regenerate_social_api(payload: RegenerateRequest) -> JSONResponse:
         events = load_events(events_file)
         event = find_event(events, payload.id)
-        social = generate_social_bundle(event)
+        settings = _load_settings(settings_file)
+        social = generate_social_bundle(event, cta_defaults=_settings_cta_defaults(settings))
 
         kind = payload.kind.strip().lower()
         if kind == "meetup":

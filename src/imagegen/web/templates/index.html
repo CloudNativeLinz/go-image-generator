@@ -57,6 +57,24 @@
         opacity: 0.96;
       }
 
+      .top-actions {
+        margin-top: 0.75rem;
+        display: flex;
+        gap: 0.55rem;
+        flex-wrap: wrap;
+      }
+
+      .top-actions a {
+        text-decoration: none;
+        display: inline-block;
+        border-radius: 10px;
+        padding: 0.65rem 0.8rem;
+        font-size: 0.78rem;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+        font-family: "IBM Plex Mono", monospace;
+      }
+
       .wall {
         margin-top: 1rem;
         display: grid;
@@ -229,6 +247,10 @@
         background: #fff;
       }
 
+      .asset-card--hero {
+        grid-column: 1 / -1;
+      }
+
       .asset-card img {
         width: 100%;
         border-radius: 8px;
@@ -344,10 +366,6 @@
         .wall {
           grid-template-columns: 1fr;
         }
-
-        .artifact-grid {
-          grid-template-columns: repeat(3, 1fr);
-        }
       }
 
       @media (max-width: 860px) {
@@ -364,6 +382,9 @@
       <section class="top">
         <h1>Social Command Wall</h1>
         <p>Every core artifact visible at once: inputs, generated images, meetup copy, and per-talk drafts.</p>
+        <div class="top-actions">
+          <a class="btn-light" href="/settings">Settings</a>
+        </div>
       </section>
 
       <section class="wall">
@@ -375,7 +396,7 @@
           <p class="sub">Configure generation and keep track of event details.</p>
 
           <div class="grid-2" style="margin-top: 0.7rem;">
-            <label>
+            <label style="grid-column: 1 / -1;">
               Event
               <select id="eventId">
                 {% for event in events %}
@@ -383,17 +404,6 @@
                   {{ event.id }} - {{ event.title }}
                 </option>
                 {% endfor %}
-              </select>
-            </label>
-            <label>
-              Width (optional)
-              <input id="width" type="number" min="320" placeholder="1080" />
-            </label>
-            <label style="grid-column: 1 / -1;">
-              Image format
-              <select id="format">
-                <option value="jpg" selected>jpg</option>
-                <option value="png">png</option>
               </select>
             </label>
           </div>
@@ -433,11 +443,6 @@
             <article class="draft">
             <h3>Meetup Announcement</h3>
             <textarea id="meetupPost" placeholder="Generate social content to start editing..."></textarea>
-            <div class="cta-grid">
-              <label>CTA Register <input id="meetupRegister" type="text" /></label>
-              <label>CTA Attend <input id="meetupAttend" type="text" /></label>
-              <label>CTA Recap <input id="meetupRecap" type="text" /></label>
-            </div>
             <div class="inline-actions">
               <button id="btnRegenMeetup" class="btn-light" type="button">Regenerate Meetup</button>
             </div>
@@ -460,22 +465,19 @@
     <script>
       const state = {
         eventId: Number({{ selected or 0 }}),
+        settings: null,
         social: null,
         snapshot: null,
+        assetImages: [],
         lightboxIndex: -1,
       };
 
       const dom = {
         eventId: document.getElementById("eventId"),
-        width: document.getElementById("width"),
-        format: document.getElementById("format"),
         status: document.getElementById("status"),
         eventMeta: document.getElementById("eventMeta"),
         talkList: document.getElementById("talkList"),
         meetupPost: document.getElementById("meetupPost"),
-        meetupRegister: document.getElementById("meetupRegister"),
-        meetupAttend: document.getElementById("meetupAttend"),
-        meetupRecap: document.getElementById("meetupRecap"),
         talkEditors: document.getElementById("talkEditors"),
         artifactGrid: document.getElementById("artifactGrid"),
         artifactCount: document.getElementById("artifactCount"),
@@ -517,18 +519,24 @@
       }
 
       function bodyForGeneration(includeSocial) {
+        const settings = state.settings || {};
         const body = {
           id: Number(dom.eventId.value),
           template: "{{ template }}",
           speaker_template: "{{ speaker_template }}",
-          format: dom.format.value,
+          format: settings.image_format || "jpg",
           out: "artifacts",
           include_social: includeSocial,
         };
-        if (dom.width.value) {
-          body.width = Number(dom.width.value);
+        if (typeof settings.width === "number") {
+          body.width = settings.width;
         }
         return body;
+      }
+
+      async function loadSettings() {
+        const response = await apiGet("/api/settings");
+        state.settings = response.settings || null;
       }
 
       async function loadEventInfo() {
@@ -564,26 +572,16 @@
       function bindMeetupEditors() {
         ensureSocialState();
         dom.meetupPost.value = state.social.meetup?.post || "";
-        dom.meetupRegister.value = state.social.meetup?.cta_variants?.register || "";
-        dom.meetupAttend.value = state.social.meetup?.cta_variants?.attend || "";
-        dom.meetupRecap.value = state.social.meetup?.cta_variants?.recap || "";
 
         const sync = () => {
           ensureSocialState();
           state.social.meetup = {
+            ...state.social.meetup,
             post: dom.meetupPost.value,
-            cta_variants: {
-              register: dom.meetupRegister.value,
-              attend: dom.meetupAttend.value,
-              recap: dom.meetupRecap.value,
-            },
           };
         };
 
         dom.meetupPost.oninput = sync;
-        dom.meetupRegister.oninput = sync;
-        dom.meetupAttend.oninput = sync;
-        dom.meetupRecap.oninput = sync;
       }
 
       function renderTalkEditors() {
@@ -600,35 +598,6 @@
           const post = document.createElement("textarea");
           post.value = talk.post || "";
           post.placeholder = "Talk-specific LinkedIn draft";
-
-          const ctaWrap = document.createElement("div");
-          ctaWrap.className = "cta-grid";
-
-          const register = document.createElement("input");
-          register.type = "text";
-          register.value = talk.cta_variants?.register || "";
-          const attend = document.createElement("input");
-          attend.type = "text";
-          attend.value = talk.cta_variants?.attend || "";
-          const recap = document.createElement("input");
-          recap.type = "text";
-          recap.value = talk.cta_variants?.recap || "";
-
-          const registerLabel = document.createElement("label");
-          registerLabel.textContent = "CTA Register";
-          registerLabel.appendChild(register);
-
-          const attendLabel = document.createElement("label");
-          attendLabel.textContent = "CTA Attend";
-          attendLabel.appendChild(attend);
-
-          const recapLabel = document.createElement("label");
-          recapLabel.textContent = "CTA Recap";
-          recapLabel.appendChild(recap);
-
-          ctaWrap.appendChild(registerLabel);
-          ctaWrap.appendChild(attendLabel);
-          ctaWrap.appendChild(recapLabel);
 
           const actions = document.createElement("div");
           actions.className = "inline-actions";
@@ -658,23 +627,14 @@
             state.social.talks[index] = {
               ...state.social.talks[index],
               post: post.value,
-              cta_variants: {
-                register: register.value,
-                attend: attend.value,
-                recap: recap.value,
-              },
             };
           };
 
           post.addEventListener("input", syncTalk);
-          register.addEventListener("input", syncTalk);
-          attend.addEventListener("input", syncTalk);
-          recap.addEventListener("input", syncTalk);
 
           actions.appendChild(regenerate);
           card.appendChild(title);
           card.appendChild(post);
-          card.appendChild(ctaWrap);
           card.appendChild(actions);
           dom.talkEditors.appendChild(card);
         });
@@ -687,7 +647,7 @@
       }
 
       function openLightbox(index) {
-        const images = state.snapshot?.images || [];
+        const images = state.assetImages || [];
         if (index < 0 || index >= images.length) {
           return;
         }
@@ -712,7 +672,7 @@
       }
 
       function moveLightbox(delta) {
-        const images = state.snapshot?.images || [];
+        const images = state.assetImages || [];
         if (!images.length || state.lightboxIndex < 0) {
           return;
         }
@@ -725,11 +685,22 @@
         dom.artifactGrid.innerHTML = "";
 
         const images = snapshot?.images || [];
-        dom.artifactCount.textContent = `${images.length} image${images.length === 1 ? "" : "s"}`;
+        const meetupIndex = images.findIndex((asset) => /(^|[-_])meetup([-.]|$)/i.test(asset.name));
+        const orderedImages =
+          meetupIndex >= 0
+            ? [images[meetupIndex], ...images.slice(0, meetupIndex), ...images.slice(meetupIndex + 1)]
+            : images;
+        state.assetImages = orderedImages;
+        dom.artifactCount.textContent = `${orderedImages.length} image${orderedImages.length === 1 ? "" : "s"}`;
 
-        images.forEach((asset, index) => {
+        orderedImages.forEach((asset, index) => {
           const card = document.createElement("div");
           card.className = "asset-card";
+
+          const isMeetup = /(^|[-_])meetup([-.]|$)/i.test(asset.name);
+          if (isMeetup) {
+            card.classList.add("asset-card--hero");
+          }
 
           const image = document.createElement("img");
           image.src = `${asset.url}?t=${Date.now()}`;
@@ -763,7 +734,7 @@
           dom.artifactGrid.appendChild(card);
         });
 
-        if (!images.length) {
+        if (!orderedImages.length) {
           closeLightbox();
         }
       }
@@ -914,6 +885,7 @@
       (async function init() {
         state.eventId = Number(dom.eventId.value || state.eventId || 0);
         try {
+          await loadSettings();
           await loadEventInfo();
           await loadSnapshot();
           setStatus("Studio ready.", true);
