@@ -17,6 +17,26 @@
       ],
       "settings": {
         "python.defaultInterpreterPath": "/usr/local/bin/python"
+      },
+      "mcp": {
+        "servers": {
+          "io.github.upstash/context7": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+              "-y",
+              "@upstash/context7-mcp@1.0.31"
+            ]
+          },
+          "microsoft/playwright-mcp": {
+            "type": "stdio",
+            "command": "npx",
+            "args": [
+              "-y",
+              "@playwright/mcp@latest"
+            ]
+          }
+        }
       }
     }
   },
