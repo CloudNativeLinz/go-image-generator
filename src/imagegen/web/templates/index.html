@@ -236,6 +236,80 @@
         background: #efeade;
         aspect-ratio: 1 / 1;
         object-fit: cover;
+        cursor: zoom-in;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .asset-card img:hover {
+        transform: translateY(-1px) scale(1.01);
+        box-shadow: 0 8px 20px rgba(17, 26, 35, 0.2);
+      }
+
+      .asset-card img:focus-visible {
+        outline: 3px solid rgba(15, 77, 109, 0.45);
+        outline-offset: 2px;
+      }
+
+      .lightbox {
+        position: fixed;
+        inset: 0;
+        display: none;
+        overflow: auto;
+        background: rgba(10, 15, 20, 0.82);
+        backdrop-filter: blur(4px);
+        z-index: 999;
+      }
+
+      .lightbox.open {
+        display: block;
+      }
+
+      .lightbox-panel {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        margin: 0;
+        max-width: calc(100vw - 2.5rem);
+        max-height: calc(100vh - 2.5rem);
+        width: fit-content;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(0, 0, 0, 0.2);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+        padding: 0.55rem;
+      }
+
+      .lightbox-image {
+        display: block;
+        max-width: calc(100vw - 3.8rem);
+        max-height: calc(100vh - 6rem);
+        width: auto;
+        height: auto;
+        border-radius: 10px;
+        background: #1a1f24;
+      }
+
+      .lightbox-caption {
+        margin-top: 0.5rem;
+        color: #f2f6fa;
+        font-size: 0.83rem;
+        text-align: center;
+      }
+
+      .lightbox-close {
+        position: absolute;
+        top: 0.9rem;
+        right: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 999px;
+        width: 2.1rem;
+        height: 2.1rem;
+        padding: 0;
+        color: #fff;
+        font-size: 1.3rem;
+        line-height: 1;
+        background: rgba(16, 24, 32, 0.78);
       }
 
       .asset-foot {
@@ -375,11 +449,20 @@
       </section>
     </main>
 
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="Close preview">×</button>
+      <figure class="lightbox-panel" role="dialog" aria-modal="true" aria-label="Image preview">
+        <img class="lightbox-image" id="lightboxImage" alt="" />
+        <figcaption class="lightbox-caption" id="lightboxCaption"></figcaption>
+      </figure>
+    </div>
+
     <script>
       const state = {
         eventId: Number({{ selected or 0 }}),
         social: null,
         snapshot: null,
+        lightboxIndex: -1,
       };
 
       const dom = {
@@ -402,6 +485,10 @@
         btnLoadSnapshot: document.getElementById("btnLoadSnapshot"),
         btnRegenMeetup: document.getElementById("btnRegenMeetup"),
         btnSaveDrafts: document.getElementById("btnSaveDrafts"),
+        lightbox: document.getElementById("lightbox"),
+        lightboxImage: document.getElementById("lightboxImage"),
+        lightboxCaption: document.getElementById("lightboxCaption"),
+        lightboxClose: document.getElementById("lightboxClose"),
       };
 
       function setStatus(text, ok = false) {
@@ -599,6 +686,40 @@
         renderTalkEditors();
       }
 
+      function openLightbox(index) {
+        const images = state.snapshot?.images || [];
+        if (index < 0 || index >= images.length) {
+          return;
+        }
+        const asset = images[index];
+        state.lightboxIndex = index;
+        dom.lightboxImage.src = `${asset.url}?t=${Date.now()}`;
+        dom.lightboxImage.alt = asset.name;
+        dom.lightboxCaption.textContent = asset.name;
+        dom.lightbox.classList.add("open");
+        dom.lightbox.setAttribute("aria-hidden", "false");
+        document.body.style.overflow = "hidden";
+      }
+
+      function closeLightbox() {
+        state.lightboxIndex = -1;
+        dom.lightbox.classList.remove("open");
+        dom.lightbox.setAttribute("aria-hidden", "true");
+        dom.lightboxImage.src = "";
+        dom.lightboxImage.alt = "";
+        dom.lightboxCaption.textContent = "";
+        document.body.style.overflow = "";
+      }
+
+      function moveLightbox(delta) {
+        const images = state.snapshot?.images || [];
+        if (!images.length || state.lightboxIndex < 0) {
+          return;
+        }
+        const next = (state.lightboxIndex + delta + images.length) % images.length;
+        openLightbox(next);
+      }
+
       function renderAssets(snapshot) {
         state.snapshot = snapshot || null;
         dom.artifactGrid.innerHTML = "";
@@ -606,13 +727,22 @@
         const images = snapshot?.images || [];
         dom.artifactCount.textContent = `${images.length} image${images.length === 1 ? "" : "s"}`;
 
-        images.forEach((asset) => {
+        images.forEach((asset, index) => {
           const card = document.createElement("div");
           card.className = "asset-card";
 
           const image = document.createElement("img");
           image.src = `${asset.url}?t=${Date.now()}`;
           image.alt = asset.name;
+          image.tabIndex = 0;
+
+          image.addEventListener("click", () => openLightbox(index));
+          image.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              openLightbox(index);
+            }
+          });
 
           const foot = document.createElement("div");
           foot.className = "asset-foot";
@@ -632,6 +762,10 @@
           card.appendChild(foot);
           dom.artifactGrid.appendChild(card);
         });
+
+        if (!images.length) {
+          closeLightbox();
+        }
       }
 
       async function loadSnapshot() {
@@ -750,6 +884,30 @@
           await saveDrafts();
         } catch (error) {
           setStatus(`Save failed: ${String(error).slice(0, 120)}`);
+        }
+      });
+
+      dom.lightboxClose.addEventListener("click", closeLightbox);
+      dom.lightbox.addEventListener("click", (event) => {
+        if (event.target === dom.lightbox) {
+          closeLightbox();
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (!dom.lightbox.classList.contains("open")) {
+          return;
+        }
+        if (event.key === "Escape") {
+          closeLightbox();
+          return;
+        }
+        if (event.key === "ArrowRight") {
+          moveLightbox(1);
+          return;
+        }
+        if (event.key === "ArrowLeft") {
+          moveLightbox(-1);
         }
       });
 
