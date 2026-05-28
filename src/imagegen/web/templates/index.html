@@ -8,15 +8,15 @@
       @import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap");
 
       :root {
-        --bg: #efe9df;
-        --ink: #1f221d;
-        --muted: #63665c;
-        --line: #d8d0c3;
-        --panel: #fffdf7;
-        --panel-strong: #f8f3ea;
-        --brand: #0f4d6d;
-        --brand-2: #d85d2f;
-        --ok: #1d7b60;
+        --bg: #f8fafc;
+        --ink: #1f2937;
+        --muted: #6b7280;
+        --line: #e5e7eb;
+        --panel: #ffffff;
+        --panel-strong: #f9fafb;
+        --brand: #667eea;
+        --brand-2: #764ba2;
+        --ok: #10b981;
       }
 
       * {
@@ -28,8 +28,8 @@
         color: var(--ink);
         font-family: "Outfit", sans-serif;
         background:
-          radial-gradient(circle at 6% 10%, rgba(216, 93, 47, 0.25), transparent 34%),
-          radial-gradient(circle at 88% 8%, rgba(15, 77, 109, 0.21), transparent 40%),
+          radial-gradient(circle at 6% 10%, rgba(118, 75, 162, 0.24), transparent 34%),
+          radial-gradient(circle at 88% 8%, rgba(102, 126, 234, 0.22), transparent 40%),
           var(--bg);
       }
 
@@ -42,7 +42,7 @@
       .top {
         border-radius: 18px;
         padding: 1rem;
-        background: linear-gradient(120deg, var(--brand) 0%, #2a6a8b 50%, var(--brand-2) 100%);
+        background: linear-gradient(120deg, var(--brand) 0%, #5a6fd8 50%, var(--brand-2) 100%);
         color: #fff;
         box-shadow: 0 16px 38px rgba(19, 25, 33, 0.25);
       }
@@ -110,7 +110,7 @@
       textarea {
         margin-top: 0.35rem;
         width: 100%;
-        border: 1px solid #cfcabd;
+        border: 1px solid #d1d5db;
         border-radius: 10px;
         padding: 0.6rem 0.65rem;
         font-family: inherit;
@@ -136,17 +136,17 @@
 
       .btn-primary {
         color: #fff;
-        background: linear-gradient(130deg, var(--brand-2), #c6481b);
+        background: linear-gradient(130deg, var(--brand), var(--brand-2));
       }
 
       .btn-secondary {
         color: #fff;
-        background: linear-gradient(130deg, var(--brand), #1f4057);
+        background: linear-gradient(130deg, var(--brand-2), #6a4190);
       }
 
       .btn-light {
-        color: #2b4457;
-        background: #dde7ee;
+        color: var(--brand);
+        background: #eef2ff;
       }
 
       .action-grid {
@@ -160,7 +160,7 @@
       .talk-list {
         margin-top: 0.7rem;
         background: var(--panel-strong);
-        border: 1px solid #dfd6c9;
+        border: 1px solid #e5e7eb;
         border-radius: 12px;
         padding: 0.7rem;
       }
@@ -176,7 +176,7 @@
         padding: 0.45rem 0.55rem;
         border-radius: 9px;
         background: #fff;
-        border: 1px solid #ddd8c8;
+        border: 1px solid #e5e7eb;
         font-size: 0.8rem;
       }
 
@@ -196,7 +196,7 @@
       }
 
       .draft {
-        border: 1px solid #dfd7c9;
+        border: 1px solid #e5e7eb;
         border-radius: 12px;
         padding: 0.75rem;
         background: #fff;
@@ -223,7 +223,7 @@
       }
 
       .asset-card {
-        border: 1px solid #dcd5c6;
+        border: 1px solid #e5e7eb;
         border-radius: 12px;
         padding: 0.45rem;
         background: #fff;
@@ -232,8 +232,8 @@
       .asset-card img {
         width: 100%;
         border-radius: 8px;
-        border: 1px solid #cbc5b8;
-        background: #efeade;
+        border: 1px solid #d1d5db;
+        background: #f3f4f6;
         aspect-ratio: 1 / 1;
         object-fit: cover;
         cursor: zoom-in;
@@ -246,7 +246,7 @@
       }
 
       .asset-card img:focus-visible {
-        outline: 3px solid rgba(15, 77, 109, 0.45);
+        outline: 3px solid rgba(102, 126, 234, 0.45);
         outline-offset: 2px;
       }
 
@@ -322,7 +322,7 @@
       }
 
       .asset-foot a {
-        color: #1e4f73;
+        color: var(--brand);
       }
 
       .mono {
