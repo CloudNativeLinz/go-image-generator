@@ -3,7 +3,7 @@ module go-image-generator
 go 1.25.0
 
 require (
-	golang.org/x/image v0.40.0
+	golang.org/x/image v0.41.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
