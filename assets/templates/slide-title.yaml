@@ -1,0 +1,51 @@
+name: slide-title
+background: assets/backgrounds/meetup-background.jpg
+size:
+  width: 1920
+  height: 1080
+defaults:
+  font: assets/fonts/LBRITE.TTF
+  color: "#FFFFFF"
+  size: 40
+
+elements:
+  - id: kicker
+    type: text
+    value: "{{ event.host | default('Cloud Native Linz') }} Meetup"
+    box: { x: 140, y: 220, w: 1640, h: 80 }
+    font: assets/fonts/LBRITED.TTF
+    size: 54
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: false
+    fit: shrink
+
+  - id: title
+    type: text
+    value: "{{ event.title | default('Meetup Edition') }}"
+    box: { x: 140, y: 320, w: 1640, h: 380 }
+    size: 120
+    color: "#FFFFFF"
+    align: left
+    valign: middle
+    wrap: true
+    fit: shrink
+
+  - id: date
+    type: text
+    value: "{{ event.date | date('%A, %d %B %Y') }}"
+    box: { x: 140, y: 740, w: 1640, h: 90 }
+    size: 56
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: false
+    fit: shrink
+
+  - id: sponsor_logo
+    type: image
+    source: "{{ event.sponsor_logo | default('assets/sponsor-logos/' ~ (event.host | slug) ~ '.png') }}"
+    box: { x: 1520, y: 920, w: 260, h: 90 }
+    shape: rect
+    fit: contain

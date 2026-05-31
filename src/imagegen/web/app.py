@@ -15,6 +15,7 @@ from ..bundle import generate_event_bundle
 from ..config import CTAVariants
 from ..loader import find_event, load_events, load_template
 from ..renderer import render_event
+from ..slides import generate_slide_deck
 from ..social import generate_social_bundle
 
 
@@ -26,6 +27,14 @@ class BundleRequest(BaseModel):
     format: str | None = None
     out: str = "artifacts"
     include_social: bool = True
+    include_slides: bool = True
+    animation_presets: list[str] = Field(default_factory=list)
+
+
+class SlidesRequest(BaseModel):
+    id: int
+    width: int | None = None
+    out: str = "artifacts"
 
 
 class RegenerateRequest(BaseModel):
@@ -130,8 +139,40 @@ def _bundle_snapshot(event_id: int, out_dir: str = "artifacts") -> dict:
         "event_id": event_id,
         "output_dir": event_dir.as_posix(),
         "images": images,
+        "slides": _slides_snapshot(event_dir),
+        "animations": _animations_snapshot(event_dir),
         "social": social,
     }
+
+
+def _slides_snapshot(event_dir: Path) -> dict:
+    pdf_path = event_dir / "slides.pdf"
+    slides_dir = event_dir / "slides"
+    pages: list[dict] = []
+
+    if slides_dir.exists() and slides_dir.is_dir():
+        for item in sorted(slides_dir.iterdir()):
+            if item.suffix.lower() != ".png":
+                continue
+            pages.append({"name": item.name, "url": _artifact_url(item.as_posix())})
+
+    return {
+        "pdf": _artifact_url(pdf_path.as_posix()) if pdf_path.exists() else None,
+        "pages": pages,
+    }
+
+
+def _animations_snapshot(event_dir: Path) -> list[dict]:
+    animations_dir = event_dir / "animations"
+    clips: list[dict] = []
+
+    if animations_dir.exists() and animations_dir.is_dir():
+        for item in sorted(animations_dir.iterdir()):
+            if item.suffix.lower() not in {".mp4", ".gif"}:
+                continue
+            clips.append({"name": item.name, "url": _artifact_url(item.as_posix())})
+
+    return clips
 
 
 def create_app(template_path: str, events_file: str, initial_event_id: int | None = None) -> FastAPI:
@@ -238,11 +279,31 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
             width=payload.width if payload.width is not None else settings.width,
             output_format=fmt,
             include_social=payload.include_social,
+            include_slides=payload.include_slides,
+            animation_presets=payload.animation_presets,
             cta_defaults=_settings_cta_defaults(settings),
         )
         response = bundle.model_dump(by_alias=True)
         response["snapshot"] = _bundle_snapshot(event.id, out_dir=payload.out)
         return JSONResponse(response)
+
+    @app.post("/api/generate-slides")
+    async def generate_slides_api(payload: SlidesRequest) -> JSONResponse:
+        settings = _load_settings(settings_file)
+        events = load_events(events_file)
+        event = find_event(events, payload.id)
+        deck = generate_slide_deck(
+            event,
+            output_dir=payload.out,
+            width=payload.width if payload.width is not None else settings.width,
+        )
+        return JSONResponse(
+            {
+                "event_id": event.id,
+                "slides": deck.model_dump(),
+                "snapshot": _bundle_snapshot(event.id, out_dir=payload.out),
+            }
+        )
 
     @app.post("/api/generate-social")
     async def generate_social_api(payload: SocialRequest) -> JSONResponse:
@@ -274,6 +335,7 @@ def create_app(template_path: str, events_file: str, initial_event_id: int | Non
             width=payload.width if payload.width is not None else settings.width,
             output_format=fmt,
             include_social=False,
+            include_slides=False,
         )
         return JSONResponse(
             {

@@ -5,9 +5,11 @@ from pathlib import Path
 import typer
 import uvicorn
 
+from .animate import ANIMATION_PRESETS, generate_animations
 from .bundle import generate_event_bundle
 from .loader import find_event, load_events, load_template
 from .renderer import render_event
+from .slides import generate_slide_deck
 from .web.app import create_app
 
 app = typer.Typer(help="Template-driven event image generator")
@@ -100,10 +102,20 @@ def generate_bundle(
     width: int | None = typer.Option(None, "--width", help="Optional output width"),
     format: str = typer.Option("jpg", "--format", help="Output format: jpg or png"),
     no_social: bool = typer.Option(False, "--no-social", help="Skip social copy generation"),
+    no_slides: bool = typer.Option(False, "--no-slides", help="Skip slide deck generation"),
+    animations: list[str] = typer.Option(
+        [],
+        "--animation",
+        help=f"Animation preset to include ({', '.join(ANIMATION_PRESETS)}); repeatable",
+    ),
 ) -> None:
     fmt = format.lower()
     if fmt not in {"jpg", "png"}:
         raise typer.BadParameter("--format must be jpg or png")
+
+    for preset in animations:
+        if preset not in ANIMATION_PRESETS:
+            raise typer.BadParameter(f"--animation must be one of {', '.join(ANIMATION_PRESETS)}")
 
     events = load_events(file)
     selected = [find_event(events, id)] if id is not None else events
@@ -117,8 +129,58 @@ def generate_bundle(
             width=width,
             output_format=fmt,
             include_social=not no_social,
+            include_slides=not no_slides,
+            animation_presets=list(animations),
         )
         typer.echo(f"Bundle ready at {bundle.output_dir}")
+
+
+@app.command("generate-slides")
+def generate_slides(
+    id: int | None = typer.Option(None, "--id", help="Single event ID to render"),
+    file: str = typer.Option("_data/events.yml", "--file", help="Path to events YAML"),
+    out: str = typer.Option("artifacts", "--out", help="Output directory"),
+    width: int | None = typer.Option(None, "--width", help="Optional output width"),
+) -> None:
+    events = load_events(file)
+    selected = [find_event(events, id)] if id is not None else events
+
+    for event in selected:
+        deck = generate_slide_deck(event, output_dir=out, width=width)
+        typer.echo(f"Deck ready: {deck.pdf} ({len(deck.slides)} slides)")
+
+
+@app.command("generate-animations")
+def generate_animations_command(
+    id: int | None = typer.Option(None, "--id", help="Single event ID to render"),
+    file: str = typer.Option("_data/events.yml", "--file", help="Path to events YAML"),
+    out: str = typer.Option("artifacts", "--out", help="Output directory"),
+    width: int | None = typer.Option(None, "--width", help="Optional output width"),
+    preset: str = typer.Option(
+        "speaker-spotlight",
+        "--preset",
+        help=f"Animation preset ({', '.join(ANIMATION_PRESETS)})",
+    ),
+    fps: int = typer.Option(12, "--fps", help="Frames per second"),
+    no_mp4: bool = typer.Option(False, "--no-mp4", help="Only emit GIF output"),
+) -> None:
+    if preset not in ANIMATION_PRESETS:
+        raise typer.BadParameter(f"--preset must be one of {', '.join(ANIMATION_PRESETS)}")
+
+    events = load_events(file)
+    selected = [find_event(events, id)] if id is not None else events
+
+    for event in selected:
+        bundle = generate_animations(
+            event,
+            preset=preset,
+            output_dir=out,
+            width=width,
+            fps=fps,
+            prefer_mp4=not no_mp4,
+        )
+        for clip in bundle.clips:
+            typer.echo(f"Animation {clip.name}: mp4={clip.mp4 or '-'} gif={clip.gif or '-'}")
 
 
 if __name__ == "__main__":

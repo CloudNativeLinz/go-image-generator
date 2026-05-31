@@ -9,10 +9,13 @@ from .config import (
     CTAVariants,
     Event,
     MeetupPostDraft,
+    PostVariants,
     SocialContentBundle,
     TalkPostDraft,
 )
 from .llm import LLMError, azure_chat_completion
+
+SHORT_FORM_LIMIT = 280
 
 
 def _date_text(value: str | date | None) -> str:
@@ -70,6 +73,56 @@ def _hashtags(event: Event) -> str:
     return f"#CloudNative #Meetup #{host} #LinkedIn"
 
 
+def _short_hashtags(event: Event) -> str:
+    host = str(event.host or "Cloud Native Linz").replace(" ", "")
+    return f"#CloudNative #{host}"
+
+
+def _short_form(post: str, event: Event) -> str:
+    tags = _short_hashtags(event)
+    body = re.sub(r"#\S+", "", post)
+    body = re.sub(r"\s+", " ", body).strip()
+
+    budget = SHORT_FORM_LIMIT - len(tags) - 1
+    if len(body) > budget:
+        truncated = body[:budget]
+        sentence_cut = max(
+            truncated.rfind(". "),
+            truncated.rfind("! "),
+            truncated.rfind("? "),
+        )
+        if sentence_cut > budget * 0.5:
+            body = truncated[: sentence_cut + 1].strip()
+        else:
+            space = truncated.rfind(" ")
+            clipped = truncated[:space] if space > 0 else truncated
+            body = clipped.rstrip(",;:- ") + "\u2026"
+
+    return f"{body} {tags}".strip()
+
+
+def _meetup_variants(event: Event, announce: str) -> PostVariants:
+    dt = _date_text(event.date)
+    title = (event.title or "our next meetup").strip()
+    tags = _hashtags(event)
+
+    reminder = (
+        f"Reminder: {title} is happening on {dt}. "
+        f"There is still time to join us for the talks, networking, and good conversations. {tags}"
+    )
+    recap = (
+        f"That's a wrap on {title} ({dt})! "
+        f"Thank you to everyone who joined, asked questions, and shared ideas. "
+        f"Recap highlights and photos are on the way. {tags}"
+    )
+    thank_you = (
+        f"A big thank you to our speakers, sponsors, and the community for making {title} on {dt} "
+        f"a great evening. We could not do it without you. See you at the next one! {tags}"
+    )
+
+    return PostVariants(announce=announce, reminder=reminder, recap=recap, thank_you=thank_you)
+
+
 def _rules_meetup_post(event: Event) -> MeetupPostDraft:
     dt = _date_text(event.date)
     title = (event.title or "Next meetup edition").strip()
@@ -84,7 +137,12 @@ def _rules_meetup_post(event: Event) -> MeetupPostDraft:
         f" {_hashtags(event)}"
     )
 
-    return MeetupPostDraft(post=post, cta_variants=_default_cta())
+    return MeetupPostDraft(
+        post=post,
+        cta_variants=_default_cta(),
+        variants=_meetup_variants(event, post),
+        short_form=_short_form(post, event),
+    )
 
 
 def _rules_talk_post(event: Event, talk_index: int) -> TalkPostDraft:
@@ -104,6 +162,7 @@ def _rules_talk_post(event: Event, talk_index: int) -> TalkPostDraft:
         speaker=talk.speaker or "",
         post=post,
         cta_variants=_default_cta(),
+        short_form=_short_form(post, event),
     )
 
 
@@ -189,6 +248,24 @@ def _llm_bundle(event: Event, settings: AzureOpenAISettings) -> SocialContentBun
     return model
 
 
+def _ensure_derived(bundle: SocialContentBundle, event: Event) -> SocialContentBundle:
+    meetup = bundle.meetup
+    meetup_updates: dict = {}
+    if meetup.variants is None:
+        meetup_updates["variants"] = _meetup_variants(event, meetup.post)
+    if not meetup.short_form:
+        meetup_updates["short_form"] = _short_form(meetup.post, event)
+    if meetup_updates:
+        meetup = meetup.model_copy(update=meetup_updates)
+
+    talks = [
+        talk if talk.short_form else talk.model_copy(update={"short_form": _short_form(talk.post, event)})
+        for talk in bundle.talks
+    ]
+
+    return bundle.model_copy(update={"meetup": meetup, "talks": talks})
+
+
 def generate_social_bundle(
     event: Event,
     *,
@@ -199,8 +276,9 @@ def generate_social_bundle(
 
     if prefer_azure and settings is not None:
         try:
-            return _apply_cta_defaults(_llm_bundle(event, settings), cta_defaults)
+            bundle = _apply_cta_defaults(_llm_bundle(event, settings), cta_defaults)
+            return _ensure_derived(bundle, event)
         except (LLMError, KeyError, ValueError, TypeError, json.JSONDecodeError):
             pass
 
-    return _apply_cta_defaults(_rules_bundle(event), cta_defaults)
+    return _ensure_derived(_apply_cta_defaults(_rules_bundle(event), cta_defaults), event)

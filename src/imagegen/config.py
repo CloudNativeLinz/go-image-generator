@@ -4,7 +4,7 @@ from datetime import date
 from os import getenv
 from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, HttpUrl
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, HttpUrl
 
 
 class Talk(BaseModel):
@@ -12,6 +12,12 @@ class Talk(BaseModel):
     speaker: str = ""
     image: str | HttpUrl | None = None
     social: str | HttpUrl | None = None
+
+
+class Sponsor(BaseModel):
+    name: str = ""
+    logo: str | None = None
+    tier: str = ""
 
 
 class Event(BaseModel):
@@ -23,6 +29,7 @@ class Event(BaseModel):
     registrations: str | int | None = None
     participants: str | int | None = None
     sponsor_logo: str | None = None
+    sponsors: list[Sponsor] = Field(default_factory=list)
     talks: list[Talk] = Field(default_factory=list)
 
 
@@ -126,9 +133,23 @@ class CTAVariants(BaseModel):
     recap: str
 
 
+class PostVariants(BaseModel):
+    model_config = ConfigDict(populate_by_name=True)
+
+    announce: str
+    reminder: str
+    recap: str
+    thank_you: str = Field(
+        validation_alias=AliasChoices("thank_you", "thank-you"),
+        serialization_alias="thank-you",
+    )
+
+
 class MeetupPostDraft(BaseModel):
     post: str
     cta_variants: CTAVariants
+    variants: PostVariants | None = None
+    short_form: str = ""
 
 
 class TalkPostDraft(BaseModel):
@@ -137,6 +158,7 @@ class TalkPostDraft(BaseModel):
     speaker: str
     post: str
     cta_variants: CTAVariants
+    short_form: str = ""
 
 
 class SocialContentBundle(BaseModel):
@@ -152,11 +174,30 @@ class ImageBundle(BaseModel):
     speaker_images: list[str] = Field(default_factory=list)
 
 
+class SlideDeck(BaseModel):
+    event_id: int
+    slides: list[str] = Field(default_factory=list)
+    pdf: str | None = None
+
+
+class AnimationClip(BaseModel):
+    name: str
+    mp4: str | None = None
+    gif: str | None = None
+
+
+class AnimationBundle(BaseModel):
+    preset: str
+    clips: list[AnimationClip] = Field(default_factory=list)
+
+
 class GeneratedBundle(BaseModel):
     event_id: int
     output_dir: str
     images: ImageBundle
     social: SocialContentBundle | None = None
+    slides: SlideDeck | None = None
+    animations: list[AnimationBundle] = Field(default_factory=list)
 
 
 ContextDict = dict[str, Any]

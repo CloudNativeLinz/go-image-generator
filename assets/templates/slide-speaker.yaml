@@ -1,0 +1,61 @@
+name: slide-speaker
+background: assets/backgrounds/meetup-background.jpg
+size:
+  width: 1920
+  height: 1080
+defaults:
+  font: assets/fonts/LBRITE.TTF
+  color: "#FFFFFF"
+  size: 40
+
+elements:
+  - id: speaker_photo
+    type: image
+    source: "{{ event.talks[talk_index].image | default('') }}"
+    box: { x: 160, y: 300, w: 480, h: 480 }
+    shape: circle
+    fit: cover
+
+  - id: badge
+    type: text
+    value: "Speaker Spotlight"
+    box: { x: 760, y: 250, w: 1000, h: 90 }
+    font: assets/fonts/LBRITED.TTF
+    size: 56
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: false
+
+  - id: talk_title
+    type: text
+    value: "{{ event.talks[talk_index].title | default('Talk title coming soon') }}"
+    box: { x: 760, y: 360, w: 1000, h: 280 }
+    size: 76
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: true
+    fit: shrink
+
+  - id: speaker_name
+    type: text
+    value: "{{ event.talks[talk_index].speaker | default('Guest speaker') }}"
+    box: { x: 760, y: 660, w: 1000, h: 110 }
+    font: assets/fonts/LBRITED.TTF
+    size: 60
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: true
+    fit: shrink
+
+  - id: date
+    type: text
+    value: "{{ event.date | date('%d %b %Y') }}"
+    box: { x: 760, y: 800, w: 1000, h: 80 }
+    size: 44
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: false

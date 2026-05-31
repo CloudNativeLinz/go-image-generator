@@ -1,0 +1,76 @@
+name: slide-agenda
+background: assets/backgrounds/meetup-background.jpg
+size:
+  width: 1920
+  height: 1080
+defaults:
+  font: assets/fonts/LBRITE.TTF
+  color: "#FFFFFF"
+  size: 40
+
+elements:
+  - id: heading
+    type: text
+    value: "Agenda"
+    box: { x: 140, y: 130, w: 1640, h: 120 }
+    font: assets/fonts/LBRITED.TTF
+    size: 96
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: false
+
+  - id: talk1
+    type: text
+    value: "{% if event.talks[0] %}{{ event.talks[0].title }} - {{ event.talks[0].speaker }}{% endif %}"
+    box: { x: 140, y: 320, w: 1640, h: 120 }
+    size: 52
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: true
+    fit: shrink
+
+  - id: talk2
+    type: text
+    value: "{% if event.talks[1] %}{{ event.talks[1].title }} - {{ event.talks[1].speaker }}{% endif %}"
+    box: { x: 140, y: 450, w: 1640, h: 120 }
+    size: 52
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: true
+    fit: shrink
+
+  - id: talk3
+    type: text
+    value: "{% if event.talks[2] %}{{ event.talks[2].title }} - {{ event.talks[2].speaker }}{% endif %}"
+    box: { x: 140, y: 580, w: 1640, h: 120 }
+    size: 52
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: true
+    fit: shrink
+
+  - id: talk4
+    type: text
+    value: "{% if event.talks[3] %}{{ event.talks[3].title }} - {{ event.talks[3].speaker }}{% endif %}"
+    box: { x: 140, y: 710, w: 1640, h: 120 }
+    size: 52
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: true
+    fit: shrink
+
+  - id: talk5
+    type: text
+    value: "{% if event.talks[4] %}{{ event.talks[4].title }} - {{ event.talks[4].speaker }}{% endif %}"
+    box: { x: 140, y: 840, w: 1640, h: 120 }
+    size: 52
+    color: "#FFFFFF"
+    align: left
+    valign: top
+    wrap: true
+    fit: shrink

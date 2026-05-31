@@ -3,9 +3,18 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from .config import CTAVariants, Event, GeneratedBundle, ImageBundle
+from .animate import generate_animations
+from .config import (
+    AnimationBundle,
+    CTAVariants,
+    Event,
+    GeneratedBundle,
+    ImageBundle,
+    SlideDeck,
+)
 from .loader import load_template
 from .renderer import render_event
+from .slides import generate_slide_deck
 from .social import generate_social_bundle
 
 
@@ -25,6 +34,8 @@ def generate_event_bundle(
     width: int | None = None,
     output_format: str = "jpg",
     include_social: bool = True,
+    include_slides: bool = True,
+    animation_presets: list[str] | None = None,
     cta_defaults: CTAVariants | None = None,
 ) -> GeneratedBundle:
     fmt = output_format.lower()
@@ -62,9 +73,21 @@ def generate_event_bundle(
             encoding="utf-8",
         )
 
+    slides: SlideDeck | None = None
+    if include_slides:
+        slides = generate_slide_deck(event, output_dir=output_dir, width=width)
+
+    animations: list[AnimationBundle] = []
+    for preset in animation_presets or []:
+        animations.append(
+            generate_animations(event, preset=preset, output_dir=output_dir, width=width)
+        )
+
     return GeneratedBundle(
         event_id=event.id,
         output_dir=event_dir.as_posix(),
         images=ImageBundle(meetup_image=meetup_path, speaker_images=speaker_paths),
         social=social,
+        slides=slides,
+        animations=animations,
     )

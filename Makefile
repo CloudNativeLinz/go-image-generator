@@ -8,10 +8,11 @@ WIDTH ?=
 FORMAT ?= jpg
 HOST ?= 0.0.0.0
 PORT ?= 8000
+PRESET ?= speaker-spotlight
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install install-dev lint format test list-events generate generate-all run preview clean
+.PHONY: help install install-dev lint format test list-events generate generate-all generate-slides generate-animations run preview clean
 
 help:
 	@echo "Available targets:"
@@ -23,6 +24,8 @@ help:
 	@echo "  list-events   List events from EVENTS_FILE"
 	@echo "  generate      Generate one event image (requires EVENT_ID)"
 	@echo "  generate-all  Generate images for all events"
+	@echo "  generate-slides     Generate a slide deck PDF (requires EVENT_ID)"
+	@echo "  generate-animations Generate animated clips (requires EVENT_ID)"
 	@echo "  run           Start local preview web app"
 	@echo "  clean         Remove caches and generated artifacts"
 	@echo ""
@@ -58,6 +61,20 @@ generate:
 
 generate-all:
 	imagegen generate --template $(TEMPLATE) --file $(EVENTS_FILE) --out $(OUT_DIR) $(if $(WIDTH),--width $(WIDTH),) --format $(FORMAT)
+
+generate-slides:
+	@if [ -z "$(EVENT_ID)" ]; then \
+		echo "EVENT_ID is required. Example: make generate-slides EVENT_ID=44"; \
+		exit 1; \
+	fi
+	imagegen generate-slides --file $(EVENTS_FILE) --out $(OUT_DIR) --id $(EVENT_ID) $(if $(WIDTH),--width $(WIDTH),)
+
+generate-animations:
+	@if [ -z "$(EVENT_ID)" ]; then \
+		echo "EVENT_ID is required. Example: make generate-animations EVENT_ID=44 PRESET=speaker-spotlight"; \
+		exit 1; \
+	fi
+	imagegen generate-animations --file $(EVENTS_FILE) --out $(OUT_DIR) --id $(EVENT_ID) --preset $(PRESET) $(if $(WIDTH),--width $(WIDTH),)
 
 run:
 	imagegen preview --template $(TEMPLATE) --file $(EVENTS_FILE) $(if $(EVENT_ID),--id $(EVENT_ID),) --host $(HOST) --port $(PORT)
