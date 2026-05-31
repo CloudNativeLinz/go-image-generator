@@ -11,7 +11,7 @@ PORT ?= 8000
 
 .DEFAULT_GOAL := help
 
-.PHONY: help install install-dev lint format test list-events generate generate-all preview clean
+.PHONY: help install install-dev lint format test list-events generate generate-all run preview clean
 
 help:
 	@echo "Available targets:"
@@ -23,13 +23,13 @@ help:
 	@echo "  list-events   List events from EVENTS_FILE"
 	@echo "  generate      Generate one event image (requires EVENT_ID)"
 	@echo "  generate-all  Generate images for all events"
-	@echo "  preview       Start local preview web app"
+	@echo "  run           Start local preview web app"
 	@echo "  clean         Remove caches and generated artifacts"
 	@echo ""
 	@echo "Common overrides:"
 	@echo "  make generate EVENT_ID=44 WIDTH=550 FORMAT=jpg"
 	@echo "  make generate-all EVENTS_FILE=_data/sample-events.yml"
-	@echo "  make preview EVENT_ID=44 PORT=8000"
+	@echo "  make run EVENT_ID=44 PORT=8000"
 
 install:
 	$(PIP) install --break-system-packages -e .
@@ -59,8 +59,10 @@ generate:
 generate-all:
 	imagegen generate --template $(TEMPLATE) --file $(EVENTS_FILE) --out $(OUT_DIR) $(if $(WIDTH),--width $(WIDTH),) --format $(FORMAT)
 
-preview:
+run:
 	imagegen preview --template $(TEMPLATE) --file $(EVENTS_FILE) $(if $(EVENT_ID),--id $(EVENT_ID),) --host $(HOST) --port $(PORT)
+
+preview: run
 
 clean:
 	rm -rf .pytest_cache .ruff_cache .mypy_cache .cache
