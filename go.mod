@@ -1,12 +1,10 @@
 module go-image-generator
 
-go 1.23.0
-
-toolchain go1.24.1
+go 1.25.0
 
 require (
-	golang.org/x/image v0.29.0
+	golang.org/x/image v0.44.0
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-require golang.org/x/text v0.27.0 // indirect
+require golang.org/x/text v0.40.0 // indirect

@@ -8,7 +8,7 @@
       image: "/assets/speaker-images/36-1.jpeg"
     - title: "Secrets Management - from plaintext to hiding keys in the Swiss Alps"
       speaker: "Markus Adelsberger & Georg Mayrhofer"
-      image: "/assets/speaker-images/jetzlstorfer.jpg"
+      image: "https://media.licdn.com/dms/image/v2/D4D03AQGeyJ7GQgLw4g/profile-displayphoto-shrink_800_800/B4DZd56zluGYAg-/0/1750097148964?e=1761782400&v=beta&t=gDx4QPjXIjbKPF6mmrklPOzS0k7jF66Df8mcblDOYW0"
 
 - id: 32  
   title: "Test Event"
@@ -21,3 +21,19 @@
     - title: "Test Talk 2" 
       speaker: "Test Speaker 2"
       image: "/assets/speaker-images/jetzlstorfer.jpg"
+
+- id: 44
+  title: "November 2025 edition at MIC"
+  date: "2025-11-25"
+  host: "MIC"
+  event_link: "https://www.meetup.com/cloud-native-linz/events/310733593/"
+  registrations: ""
+  participants: ""
+  talks:
+    - title: "Hacking the Cloud Bill: Building a Multi-Cloud Cost Pipeline" # with ClickHouse & Python
+      speaker: "Clemens Kriechbaumer & Heinz Mayer"
+      image: "/assets/speaker-images/44-1.png"
+    - title: "The Kubernetes and the Bazzar"
+      speaker: "Hubert Ströbitzer"
+      image: "https://sessionize.com/image/1e25-400o400o2-aMovy7BRHym77YN6Aa9yzK.jpg"
+      social: "https://www.linkedin.com/in/stroebitzer/"
