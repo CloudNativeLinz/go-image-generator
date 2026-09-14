@@ -1,0 +1,602 @@
+{
+  "checkedOutCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+  "scope": "All 52 currently tracked artifact JPEGs except *-550.jpg, across all locally available Git refs.",
+  "policy": "Visually inspected all distinct versions. Prefer the most populated speaker-image slots for the actual event, then the newest suitable version. Copy original Git bytes without re-encoding.",
+  "artifactCommitsInspected": 80,
+  "distinctVersionsInspected": 178,
+  "files": [
+    {
+      "original": "artifacts/1.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/2.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/3.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 3
+    },
+    {
+      "original": "artifacts/4.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/5.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/6.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/7.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/8.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/9.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/10.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/11.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 3
+    },
+    {
+      "original": "artifacts/12.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/13.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/14.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/15.jpg",
+      "backup": "backup/15.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 6,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "cd5f08f1f59697d1a768174fcb690b8834860f1b",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1
+      ],
+      "notes": "Only one speaker slot has a portrait; the other remains a placeholder in the best historical version."
+    },
+    {
+      "original": "artifacts/16.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/17.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/18.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/19.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/20.jpg",
+      "backup": "backup/20.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "6bf66554ace9b2de4c0d0dc4dd585121c07ecf21",
+      "sourceSnapshotDate": "2025-08-13",
+      "gitBlob": "ccc19def5dab4e5f57f87e88d67ffcc869b1d378",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/21.jpg",
+      "backup": "backup/21.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "6d0a4c4dde1d1d811f828356b952f01cec6c3c99",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/22.jpg",
+      "backup": "backup/22.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "48df8818a96ba3a7407e9449388e5b2184077282",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/23.jpg",
+      "backup": "backup/23.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "5e51f19fe0846ab9166c2ab0430d009e90d16914",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        2
+      ],
+      "notes": "Only one speaker slot has a portrait; the other remains a placeholder in the best historical version."
+    },
+    {
+      "original": "artifacts/24.jpg",
+      "backup": "backup/24.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "be3a15ce22d662ffdf299c18c29b14c9ce9e262f",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/25.jpg",
+      "backup": "backup/25.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 6,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "693fe410d148594d0ef9294bade829b1716ab65d",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/26.jpg",
+      "backup": "backup/26.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "66747cac9813748a13c911e18040669fb3236b9d",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/27.jpg",
+      "backup": "backup/27.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "9cf1af8e2381318bbfd9125d44850bb3245b28e7",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/28.jpg",
+      "backup": "backup/28.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "0579c1d3a72510785e6478ee099960fe147d1b09",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        2
+      ],
+      "notes": "Only one speaker slot has a portrait; the other remains a placeholder in the best historical version."
+    },
+    {
+      "original": "artifacts/29.jpg",
+      "backup": "backup/29.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "e89595fdd317bb6b59f78fcea07842fc63888d45",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1
+      ],
+      "notes": "Only one speaker slot has a portrait; the other remains a placeholder in the best historical version."
+    },
+    {
+      "original": "artifacts/30.jpg",
+      "backup": "backup/30.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "28986d03a2050cf98d31d181e17b700418b3affc",
+      "sourceSnapshotDate": "2025-08-08",
+      "gitBlob": "685b9e7d5aea7c770434a4aa6596d0cfa22644dc",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/31.jpg",
+      "backup": "backup/31.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "90d7e536e4365a7671459dbef167c73ece247587",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        2
+      ],
+      "notes": "Only one speaker slot has a portrait; the other remains a placeholder in the best historical version."
+    },
+    {
+      "original": "artifacts/32.jpg",
+      "backup": "backup/32.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "7554f7787a934582c484ba5917a79671a815afe1",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        2
+      ],
+      "notes": "Only one speaker slot has a portrait; the other remains a placeholder in the best historical version."
+    },
+    {
+      "original": "artifacts/33-old.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 1
+    },
+    {
+      "original": "artifacts/33.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 2
+    },
+    {
+      "original": "artifacts/34.jpg",
+      "backup": "backup/34.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "d28e7f94a7767e781c5484fae2b85dae7c471e01",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/35.jpg",
+      "backup": "backup/35.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "a6dbd75fa1d77a06652f2f5ef1c7dcb43b253931",
+      "sourceSnapshotDate": "2025-08-08",
+      "gitBlob": "ea4551ed83080428f3cef44ef10fdc13c0fa1a80",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/36.jpg",
+      "backup": "backup/36.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "0bf31796fd93ed91472c87f53a9fe2486af562ee",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/37.jpg",
+      "backup": "backup/37.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "4b3896810fbe0a6495c8373b497eda8331417625",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/38.jpg",
+      "backup": "backup/38.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "ad3e4b5773e62c47d954d39e62ad122ae893dcec",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1
+      ],
+      "notes": "Only one speaker slot has a portrait; the other remains a placeholder in the best historical version."
+    },
+    {
+      "original": "artifacts/39.jpg",
+      "backup": "backup/39.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "8c5adff425e8a39d6de832f89e82ebf5b52b8877",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/40.jpg",
+      "backup": "backup/40.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 4,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "6d2441e8355bb67ca7cc18c4a960add7d8c89cc2",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/41.jpg",
+      "backup": "backup/41.jpg",
+      "status": "historical-version-restored",
+      "versionsChecked": 3,
+      "sourceCommit": "1fa06395e148fe67c5c1d2347c7e1d2bce2df556",
+      "sourceSnapshotDate": "2025-09-18",
+      "gitBlob": "c5bc9440b07f503a40cdec5c71cbe2c55ddbade3",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/42.jpg",
+      "backup": "backup/42.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 7,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "6d1c3772071c1524a01d540a76f5e67e9960a29f",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1
+      ],
+      "notes": "Second slot is the community open mic. Excluded the unrelated older test-event banner with two portraits."
+    },
+    {
+      "original": "artifacts/43.jpg",
+      "backup": "backup/43.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 10,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "182296a45eb3450c60c66a00461c24590c201f63",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/44.jpg",
+      "backup": "backup/44.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 10,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "989b27b098e5c0e56483761c467ecf5feb652a18",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/45.jpg",
+      "backup": "backup/45.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 4,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "3c19f9fea62a1cc558eefe40d1c40f6c3afdc9c8",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "First speaker uses a cartoon avatar; second speaker has a photographic portrait."
+    },
+    {
+      "original": "artifacts/46.jpg",
+      "backup": "backup/46.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 3,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "c64cbc008c8011ab77c5d5a7895564d94bd100ba",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/47.jpg",
+      "backup": "backup/47.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 5,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "c2f3f5fcefcdbc83a952aaccbed093304e3cae01",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/48.jpg",
+      "backup": "backup/48.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 7,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "1afbad6b16b0e0478cca95ff28ecd75177d0c745",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/49.jpg",
+      "backup": "backup/49.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 2,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "b39f8dedcc1316e242b406a9d2b32a6be3c13ef8",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/50.jpg",
+      "backup": "backup/50.jpg",
+      "status": "current-version-preserved",
+      "versionsChecked": 6,
+      "sourceCommit": "32a373cb4924786a91f279ae9e12e80b714c065f",
+      "sourceSnapshotDate": "2026-09-14",
+      "gitBlob": "722eb69fcdb26c15624f6247b90befc615210b4f",
+      "width": 1920,
+      "height": 1080,
+      "speakerImageSlots": [
+        1,
+        2
+      ],
+      "notes": "Both speaker-image slots are populated; a slot may represent multiple named speakers."
+    },
+    {
+      "original": "artifacts/51.jpg",
+      "status": "no-speaker-image-found",
+      "versionsChecked": 3
+    }
+  ]
+}
